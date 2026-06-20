@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consulta → Registro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F6F2;
+    --panel: #FFFFFF;
+    --ink: #1C1C1E;
+    --ink-soft: #6B6A66;
+    --rule: #DDDAD2;
+    --record: #C8553D;
+    --record-dim: rgba(200, 85, 61, 0.16);
+    --ready: #3C6E6E;
+    --ready-dim: rgba(60, 110, 110, 0.12);
+    --level: 0;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 80px;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  h1 { font-size: clamp(22px, 4vw, 28px); font-weight: 700; margin: 0 0 4px; text-align: center; }
+  .subtitle { color: var(--ink-soft); font-size: 14px; margin: 0 0 32px; text-align: center; }
+
+  /* --- Record button --- */
+  .recorder { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+  .ring-wrap { position: relative; width: 124px; height: 124px; display: flex; align-items: center; justify-content: center; }
+
+  .ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: var(--record-dim);
+    transform: scale(calc(1 + var(--level) * 0.35));
+    transition: transform 60ms linear, opacity 200ms ease;
+    opacity: 0;
+  }
+  .recorder[data-state="recording"] .ring { opacity: 1; }
+
+  #recordBtn {
+    position: relative; width: 92px; height: 92px; border-radius: 50%;
+    border: none; background: var(--ink); color: var(--paper); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 200ms ease, transform 120ms ease;
+  }
+  #recordBtn:hover { transform: translateY(-1px); }
+  #recordBtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+  .recorder[data-state="recording"] #recordBtn { background: var(--record); }
+  .recorder[data-state="processing"] #recordBtn { background: var(--ink-soft); cursor: default; }
+  #recordBtn svg { width: 28px; height: 28px; }
+
+  .icon-stop { display: none; }
+  .recorder[data-state="recording"] .icon-mic { display: none; }
+  .recorder[data-state="recording"] .icon-stop { display: block; }
+  .recorder[data-state="processing"] .icon-mic, .recorder[data-state="processing"] .icon-stop { display: none; }
+
+  .spinner {
+    display: none; width: 24px; height: 24px;
+    border: 3px solid rgba(247,246,242,0.35); border-top-color: var(--paper);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  .recorder[data-state="processing"] .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .status-line { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft); min-height: 18px; text-align: center; }
+  .recorder[data-state="recording"] .status-line { color: var(--record); }
+
+  .privacy-note { margin-top: 18px; font-size: 12px; color: var(--ink-soft); text-align: center; max-width: 360px; font-style: italic; }
+
+  .error-box {
+    display: none; margin-top: 20px; max-width: 560px; width: 100%;
+    background: #FBEAE6; border: 1px solid var(--record); color: #7A3422;
+    border-radius: var(--radius); padding: 14px 16px; font-size: 13px; line-height: 1.5;
+  }
+  .error-box.visible { display: block; }
+  .error-box button {
+    margin-top: 8px; background: none; border: 1px solid #7A3422; color: #7A3422;
+    border-radius: 6px; padding: 5px 12px; font-family: inherit; font-size: 12px; cursor: pointer;
+  }
+
+  /* --- Workspace: notepad + SOAP panel --- */
+  .workspace {
+    margin-top: 32px; width: 100%; max-width: 560px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  @media (min-width: 920px) {
+    .workspace { max-width: 1000px; flex-direction: row; align-items: flex-start; }
+    .notepad-card, .panel { flex: 1; min-width: 0; }
+  }
+
+  .card-header, .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; border-bottom: 1px solid var(--rule);
+  }
+  .card-header span:first-child, .panel-header span:first-child {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-soft);
+  }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-soft); }
+  .badge.live { color: var(--record); }
+  .badge.live .dot { background: var(--record); animation: pulse 1.3s ease-in-out infinite; }
+  .badge.done { color: var(--ready); }
+  .badge.done .dot { background: var(--ready); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+  .notepad-card {
+    background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  #notepad {
+    border: none; resize: vertical; outline: none;
+    font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; line-height: 1.7;
+    color: var(--ink); padding: 16px 18px; min-height: 260px; background: transparent;
+  }
+  #notepad::placeholder { color: var(--ink-soft); font-style: italic; }
+  .notepad-hint {
+    padding: 8px 18px 14px; font-size: 11.5px; color: var(--ink-soft); font-style: italic;
+    display: none;
+  }
+  .notepad-hint.visible { display: block; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden;
+  }
+  .panel-header { background: var(--ready-dim); }
+
+  .section { padding: 16px 18px; border-bottom: 1px solid var(--rule); transition: border-color 200ms ease; }
+  .section:last-of-type { border-bottom: none; }
+  .section label {
+    display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 7px;
+  }
+  .section [contenteditable] {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; line-height: 1.6;
+    white-space: pre-wrap; outline: none; min-height: 18px;
+  }
+  .section [contenteditable]:focus-visible { outline: 1px dashed var(--ink-soft); outline-offset: 4px; }
+  .section[data-state="pending"] { border-left: 3px solid var(--rule); }
+  .section[data-state="pending"] [contenteditable]:empty:before {
+    content: attr(data-placeholder); color: var(--ink-soft); font-style: italic;
+  }
+  .section[data-state="detected"] { border-left: 3px dashed var(--ready); }
+  .section[data-state="detected"] [contenteditable]:empty:before {
+    content: attr(data-placeholder); color: var(--ready); font-style: italic;
+  }
+  .section[data-state="filled"] { border-left: 3px solid var(--ready); }
+
+  .review-note { padding: 0 18px 16px; font-size: 11.5px; color: var(--ink-soft); font-style: italic; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px 18px; }
+  .actions button {
+    font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500;
+    padding: 9px 14px; border-radius: 7px; border: 1px solid var(--ink);
+    background: var(--ink); color: var(--paper); cursor: pointer; transition: opacity 150ms ease;
+  }
+  .actions button:hover { opacity: 0.85; }
+  .actions button.secondary { background: transparent; color: var(--ink); }
+  .actions button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .copied-flash {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ready);
+    align-self: center; opacity: 0; transition: opacity 200ms ease;
+  }
+  .copied-flash.visible { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ring, #recordBtn, .spinner, .badge .dot { transition: none; animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">Consulta → Registro</div>
+  <h1>Grave a consulta</h1>
+  <p class="subtitle">Acompanhe a transcrição e o registro clínico sendo preenchidos em tempo real.</p>
+
+  <div class="recorder" id="recorder" data-state="idle">
+    <div class="ring-wrap">
+      <div class="ring"></div>
+      <button id="recordBtn" aria-label="Iniciar gravação">
+        <svg class="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        <div class="spinner"></div>
+      </button>
+    </div>
+    <div class="status-line" id="statusLine">Toque para gravar</div>
+  </div>
+
+  <p class="privacy-note">Evite citar nome completo, CPF ou outros identificadores diretos durante a gravação. Em navegadores compatíveis, o áudio não sai do seu dispositivo — só o texto reconhecido localmente é enviado para organizar o registro.</p>
+
+  <div class="error-box" id="errorBox">
+    <div id="errorText"></div>
+    <button id="retryBtn">Tentar novamente</button>
+  </div>
+
+  <div class="workspace">
+    <div class="notepad-card">
+      <div class="card-header">
+        <span>Transcrição</span>
+        <span class="badge" id="notepadBadge"><span class="dot"></span><span>Aguardando</span></span>
+      </div>
+      <textarea id="notepad" placeholder="O texto da consulta aparece aqui em tempo real durante a gravação. Você também pode digitar ou colar livremente."></textarea>
+      <div class="notepad-hint" id="notepadHint">Edição manual — atualização automática pausada nesta gravação.</div>
+    </div>
+
+    <div class="panel" id="panel">
+      <div class="panel-header">
+        <span>Registro clínico</span>
+        <span class="badge" id="panelBadge"><span class="dot"></span><span>Aguardando gravação</span></span>
+      </div>
+
+      <div class="section" data-state="pending" id="secQueixaHda">
+        <label>Queixa principal / HDA</label>
+        <div contenteditable="true" id="fQueixaHda" data-placeholder="Ainda não mencionado"></div>
+      </div>
+      <div class="section" data-state="pending" id="secExameFisico">
+        <label>Exame físico</label>
+        <div contenteditable="true" id="fExameFisico" data-placeholder="Ainda não mencionado"></div>
+      </div>
+      <div class="section" data-state="pending" id="secHipoteseDiagnostica">
+        <label>Hipótese diagnóstica</label>
+        <div contenteditable="true" id="fHipoteseDiagnostica" data-placeholder="Ainda não mencionado"></div>
+      </div>
+      <div class="section" data-state="pending" id="secConduta">
+        <label>Conduta</label>
+        <div contenteditable="true" id="fConduta" data-placeholder="Ainda não mencionado"></div>
+      </div>
+
+      <p class="review-note">Conteúdo gerado por IA — revise antes de incluir no prontuário oficial.</p>
+
+      <div class="actions">
+        <button id="copyBtn">Copiar</button>
+        <button id="downloadTxtBtn" class="secondary">Baixar .txt</button>
+        <button id="downloadDocBtn" class="secondary">Baixar .doc</button>
+        <button id="resetBtn" class="secondary">Nova consulta</button>
+        <span class="copied-flash" id="copiedFlash">Copiado</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  const MIN_LIVE_TEXT_LENGTH = 15; // abaixo disso, não confiamos na transcrição ao vivo e caímos no áudio
+
+  // Detector de cobertura 100% local — sem chamar IA nenhuma durante a gravação.
+  // Só sinaliza "já foi mencionado", não gera texto. O texto de verdade só é
+  // redigido pela IA uma vez, quando a gravação termina.
+  const COVERAGE_PATTERNS = {
+    queixaHda: /\b(dor|febre|tosse|dispneia|falta de ar|n[áa]usea|v[óo]mit|diarreia|queixa|sintoma|mal[\s-]estar|fraqueza|cefal[ée]ia|h[áa]\s+\d+\s*(dia|hora|semana)|iniciou|come[çc]ou|sente|sentindo)\b/i,
+    exameFisico: /\b(PA|press[ãa]o arterial|FC|frequ[êe]ncia card[íi]aca|FR|frequ[êe]ncia respirat[óo]ria|temperatura|ausculta|abdom[ei]|palpa[çc][ãa]o|exame f[íi]sico|satura[çc][ãa]o|spo2|glasgow|sinais vitais|edema)\b/i,
+    hipoteseDiagnostica: /\b(hip[óo]tese|suspeita|diagn[óo]stico|prov[áa]vel|compat[íi]vel com|impress[ãa]o cl[íi]nica|cid)\b/i,
+    conduta: /\b(prescrev|prescri[çc][ãa]o|solicit|encaminh|alta|retorno|medica[çc][ãa]o|medicamento|dose|internar|interna[çc][ãa]o|observa[çc][ãa]o|conduta|orient)\b/i
+  };
+
+  const recorder = document.getElementById('recorder');
+  const recordBtn = document.getElementById('recordBtn');
+  const statusLine = document.getElementById('statusLine');
+  const errorBox = document.getElementById('errorBox');
+  const errorText = document.getElementById('errorText');
+  const retryBtn = document.getElementById('retryBtn');
+  const panel = document.getElementById('panel');
+  const panelBadge = document.getElementById('panelBadge');
+  const notepad = document.getElementById('notepad');
+  const notepadBadge = document.getElementById('notepadBadge');
+  const notepadHint = document.getElementById('notepadHint');
+  const copiedFlash = document.getElementById('copiedFlash');
+
+  const sections = {
+    queixaHda: document.getElementById('secQueixaHda'),
+    exameFisico: document.getElementById('secExameFisico'),
+    hipoteseDiagnostica: document.getElementById('secHipoteseDiagnostica'),
+    conduta: document.getElementById('secConduta')
+  };
+  const fields = {
+    queixaHda: document.getElementById('fQueixaHda'),
+    exameFisico: document.getElementById('fExameFisico'),
+    hipoteseDiagnostica: document.getElementById('fHipoteseDiagnostica'),
+    conduta: document.getElementById('fConduta')
+  };
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  let mediaRecorder = null, chunks = [], stream = null, lastBlob = null;
+  let audioCtx = null, analyser = null, dataArray = null, rafId = null;
+  let recognition = null, recognizing = false;
+  let committedText = '';      // texto já finalizado pelo reconhecimento de voz nesta gravação
+  let preRecordingText = '';   // o que já estava no bloco de notas antes de apertar gravar
+  let programmaticUpdate = false;
+  let notepadEditedByUser = false;
+  let fieldEditedByUser = { queixaHda: false, exameFisico: false, hipoteseDiagnostica: false, conduta: false };
+
+  function setState(state) { recorder.dataset.state = state; }
+  function setStatus(text) { statusLine.textContent = text; }
+  function showError(message) { errorText.textContent = message; errorBox.classList.add('visible'); }
+  function hideError() { errorBox.classList.remove('visible'); }
+
+  function setBadge(el, mode, text) {
+    el.className = 'badge' + (mode ? ' ' + mode : '');
+    el.querySelector('span:last-child').textContent = text;
+  }
+
+  // ---------- Notepad (transcrição ao vivo) ----------
+
+  notepad.addEventListener('input', () => {
+    if (programmaticUpdate) programmaticUpdate = false;
+    else if (!notepadEditedByUser) {
+      notepadEditedByUser = true;
+      if (recorder.dataset.state === 'recording') notepadHint.classList.add('visible');
+    }
+    updateCoverage(notepad.value);
+  });
+
+  function setNotepadValue(text) {
+    programmaticUpdate = true;
+    notepad.value = text;
+    updateCoverage(text);
+  }
+
+  function updateCoverage(text) {
+    Object.keys(COVERAGE_PATTERNS).forEach((key) => {
+      if (fieldEditedByUser[key] || sections[key].dataset.state === 'filled') return;
+      const detected = COVERAGE_PATTERNS[key].test(text);
+      sections[key].dataset.state = detected ? 'detected' : 'pending';
+      fields[key].dataset.placeholder = detected
+        ? 'Mencionado — texto final ao parar a gravação'
+        : 'Ainda não mencionado';
+    });
+  }
+
+  function resetCoverage() {
+    Object.keys(sections).forEach((key) => {
+      sections[key].dataset.state = 'pending';
+      fields[key].dataset.placeholder = 'Ainda não mencionado';
+    });
+  }
+
+  // ---------- SOAP fields (edição manual pausa auto-preenchimento daquele campo) ----------
+
+  Object.keys(fields).forEach((key) => {
+    fields[key].addEventListener('input', () => {
+      fieldEditedByUser[key] = true;
+    });
+  });
+
+  function applySoapFields(soap, { isFinal }) {
+    if (!soap) return;
+    Object.keys(fields).forEach((key) => {
+      const value = soap[key];
+      if (fieldEditedByUser[key]) return; // respeita o que o médico já corrigiu
+      if (value && String(value).trim()) {
+        fields[key].textContent = String(value).trim();
+        sections[key].dataset.state = 'filled';
+      } else if (isFinal) {
+        sections[key].dataset.state = 'pending';
+      }
+    });
+  }
+
+  // ---------- Gravação ----------
+
+  function pickMimeType() {
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+    for (const type of candidates) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(type)) return type;
+    }
+    return '';
+  }
+
+  async function startRecording() {
+    hideError();
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+      showError('Este navegador não tem suporte à gravação de áudio. Tente Chrome, Edge ou Safari atualizado.');
+      return;
+    }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (err) {
+      showError('Não foi possível acessar o microfone. Verifique a permissão do navegador.');
+      return;
+    }
+
+    // reset de estado para uma nova gravação
+    committedText = '';
+    preRecordingText = notepad.value.trim();
+    notepadEditedByUser = false;
+    notepadHint.classList.remove('visible');
+    Object.keys(fieldEditedByUser).forEach(k => fieldEditedByUser[k] = false);
+    resetCoverage();
+
+    const mimeType = pickMimeType();
+    chunks = [];
+    mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+    mediaRecorder.onstop = handleStop;
+    mediaRecorder.start();
+
+    setState('recording');
+    setStatus('00:00');
+    setBadge(notepadBadge, 'live', 'Ao vivo');
+    setBadge(panelBadge, 'live', 'Ao vivo');
+    startTimer();
+    if (!reducedMotion) setupLevelMeter(stream);
+    startLiveCaptions();
+  }
+
+  let timerStart = null, timerId = null;
+  function startTimer() {
+    timerStart = Date.now();
+    timerId = setInterval(() => {
+      const s = Math.floor((Date.now() - timerStart) / 1000);
+      const mm = String(Math.floor(s / 60)).padStart(2, '0');
+      const ss = String(s % 60).padStart(2, '0');
+      setStatus(`${mm}:${ss}`);
+    }, 500);
+  }
+  function stopTimer() { clearInterval(timerId); }
+
+  function setupLevelMeter(stream) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    updateLevel();
+  }
+  function updateLevel() {
+    if (!analyser) return;
+    analyser.getByteTimeDomainData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) { const v = (dataArray[i] - 128) / 128; sum += v * v; }
+    const level = Math.min(1, Math.sqrt(sum / dataArray.length) * 4.5);
+    document.documentElement.style.setProperty('--level', level.toFixed(3));
+    rafId = requestAnimationFrame(updateLevel);
+  }
+  function teardownLevelMeter() {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null; analyser = null;
+    if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+    document.documentElement.style.setProperty('--level', 0);
+  }
+
+  // ---------- Legendas ao vivo (Web Speech API — gratuita, roda no navegador) ----------
+
+  function startLiveCaptions() {
+    if (!SpeechRecognitionImpl) return; // sem suporte (ex.: Firefox): segue sem prévia ao vivo
+    recognition = new SpeechRecognitionImpl();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const res = event.results[i];
+        if (res.isFinal) committedText += res[0].transcript;
+        else interim += res[0].transcript;
+      }
+      if (!notepadEditedByUser) {
+        const base = preRecordingText ? preRecordingText + '\n' : '';
+        setNotepadValue(base + committedText + interim);
+      }
+    };
+
+    recognition.onerror = (e) => {
+      if (e.error === 'not-allowed') showError('Permissão de microfone negada para a transcrição ao vivo.');
+      // outros erros (ex.: 'no-speech') são tratados pelo onend, que reinicia
+    };
+
+    recognition.onend = () => {
+      if (recorder.dataset.state === 'recording') {
+        try { recognition.start(); } catch (e) {}
+      }
+    };
+
+    try { recognition.start(); recognizing = true; } catch (e) {}
+  }
+
+  function stopLiveCaptions() {
+    if (recognition) {
+      recognition.onend = null;
+      try { recognition.stop(); } catch (e) {}
+      recognition = null;
+    }
+    recognizing = false;
+  }
+
+  // ---------- Parar gravação e gerar versão final ----------
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    stopTimer();
+    stopLiveCaptions();
+    teardownLevelMeter();
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  }
+
+  async function handleStop() {
+    const mimeType = (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm';
+    const blob = new Blob(chunks, { type: mimeType });
+    lastBlob = blob;
+
+    const liveText = committedText.trim();
+    if (SpeechRecognitionImpl && liveText.length >= MIN_LIVE_TEXT_LENGTH) {
+      // Caminho padrão e gratuito: o áudio não sai do navegador, só o texto já
+      // reconhecido localmente é enviado para a IA estruturar.
+      await structureFromText(liveText);
+    } else {
+      // Reserva: navegador sem reconhecimento de voz, ou a transcrição ao vivo
+      // veio vazia/curta demais. Aí sim enviamos o áudio para o Whisper.
+      await processAudio(blob);
+    }
+  }
+
+  async function structureFromText(text) {
+    setState('processing');
+    setStatus('Organizando o registro...');
+    setBadge(notepadBadge, '', 'Revisando');
+    setBadge(panelBadge, '', 'Revisando...');
+    hideError();
+
+    try {
+      const res = await fetch('/api/structure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao organizar o registro.');
+
+      finishWithResult(data.soap, data.soap_raw);
+    } catch (err) {
+      // Rede de segurança: se o caminho de texto falhar, tenta o de áudio antes de desistir.
+      if (lastBlob && lastBlob.size > 0) {
+        await processAudio(lastBlob);
+      } else {
+        setState('idle');
+        setStatus('Toque para gravar');
+        setBadge(notepadBadge, '', 'Pausado');
+        setBadge(panelBadge, '', 'Sem registro final — tente novamente');
+        showError('Não foi possível organizar o registro. ' + (err.message || ''));
+      }
+    }
+  }
+
+  async function processAudio(blob) {
+    setState('processing');
+    setStatus('Transcrevendo e organizando o registro...');
+    setBadge(notepadBadge, '', 'Revisando');
+    setBadge(panelBadge, '', 'Revisando...');
+    hideError();
+
+    const form = new FormData();
+    const ext = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+    form.append('audio', blob, `gravacao.${ext}`);
+
+    try {
+      const res = await fetch('/api/process', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao processar a gravação.');
+
+      // Texto final mais preciso (Whisper) só substitui o bloco de notas se o médico não editou manualmente.
+      if (!notepadEditedByUser && data.transcript) {
+        const base = preRecordingText ? preRecordingText + '\n' : '';
+        setNotepadValue(base + data.transcript.trim());
+      }
+
+      finishWithResult(data.soap, data.soap_raw);
+    } catch (err) {
+      setState('idle');
+      setStatus('Toque para gravar');
+      setBadge(notepadBadge, '', 'Pausado');
+      setBadge(panelBadge, '', 'Sem registro final — tente novamente');
+      showError('Não foi possível concluir a transcrição. ' + (err.message || '') + ' Você pode tentar novamente.');
+    }
+  }
+
+  function finishWithResult(soap, soapRaw) {
+    applySoapFields(soap, { isFinal: true });
+    if (!soap) {
+      // resposta não veio estruturada — preserva a informação no campo Conduta, se ele não foi editado
+      if (!fieldEditedByUser.conduta) {
+        fields.conduta.textContent = soapRaw || 'Não foi possível estruturar a resposta automaticamente.';
+        sections.conduta.dataset.state = 'filled';
+      }
+    }
+    setState('idle');
+    setStatus('Toque para gravar');
+    setBadge(notepadBadge, 'done', 'Revisado');
+    setBadge(panelBadge, 'done', 'Registro revisado — confira antes de usar');
+  }
+
+  // ---------- Exportação ----------
+
+  function buildPlainText() {
+    return [
+      'REGISTRO CLÍNICO',
+      new Date().toLocaleString('pt-BR'),
+      '',
+      'QUEIXA PRINCIPAL / HDA', fields.queixaHda.textContent.trim(),
+      '',
+      'EXAME FÍSICO', fields.exameFisico.textContent.trim(),
+      '',
+      'HIPÓTESE DIAGNÓSTICA', fields.hipoteseDiagnostica.textContent.trim(),
+      '',
+      'CONDUTA', fields.conduta.textContent.trim()
+    ].join('\n');
+  }
+
+  function buildHtmlDoc() {
+    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Calibri, sans-serif; font-size:12pt;">
+      <h2>Registro Clínico</h2>
+      <p><em>${esc(new Date().toLocaleString('pt-BR'))}</em></p>
+      <h3>Queixa principal / HDA</h3><p>${esc(fields.queixaHda.textContent.trim())}</p>
+      <h3>Exame físico</h3><p>${esc(fields.exameFisico.textContent.trim())}</p>
+      <h3>Hipótese diagnóstica</h3><p>${esc(fields.hipoteseDiagnostica.textContent.trim())}</p>
+      <h3>Conduta</h3><p>${esc(fields.conduta.textContent.trim())}</p>
+      </body></html>`;
+  }
+
+  function downloadBlob(content, type, filename) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- Eventos ----------
+
+  recordBtn.addEventListener('click', () => {
+    const state = recorder.dataset.state;
+    if (state === 'idle') startRecording();
+    else if (state === 'recording') stopRecording();
+  });
+
+  retryBtn.addEventListener('click', () => {
+    const liveText = committedText.trim();
+    if (SpeechRecognitionImpl && liveText.length >= MIN_LIVE_TEXT_LENGTH) structureFromText(liveText);
+    else if (lastBlob) processAudio(lastBlob);
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(buildPlainText());
+      copiedFlash.classList.add('visible');
+      setTimeout(() => copiedFlash.classList.remove('visible'), 1600);
+    } catch (e) {
+      showError('Não foi possível copiar automaticamente. Selecione o texto manualmente.');
+    }
+  });
+
+  document.getElementById('downloadTxtBtn').addEventListener('click', () => {
+    downloadBlob(buildPlainText(), 'text/plain;charset=utf-8', `registro-soap-${Date.now()}.txt`);
+  });
+  document.getElementById('downloadDocBtn').addEventListener('click', () => {
+    downloadBlob(buildHtmlDoc(), 'application/msword;charset=utf-8', `registro-soap-${Date.now()}.doc`);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    setNotepadValue('');
+    committedText = '';
+    notepadEditedByUser = false;
+    notepadHint.classList.remove('visible');
+    Object.keys(fields).forEach((key) => {
+      fields[key].textContent = '';
+      fieldEditedByUser[key] = false;
+    });
+    resetCoverage();
+    lastBlob = null;
+    hideError();
+    setStatus('Toque para gravar');
+    setBadge(notepadBadge, '', 'Aguardando');
+    setBadge(panelBadge, '', 'Aguardando gravação');
+  });
+})();
+</script>
+</body>
+</html>
