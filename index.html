@@ -47,6 +47,10 @@
     color: var(--ink-soft);
     margin-bottom: 6px;
   }
+  .eyebrow #eyebrowSlug {
+    color: var(--ready); letter-spacing: normal; text-transform: none;
+  }
+  .eyebrow #eyebrowSlug::before { content: ' · '; color: var(--ink-soft); }
 
   h1 { font-size: clamp(26px, 5vw, 34px); font-weight: 700; margin: 0 0 6px; text-align: center; }
   .subtitle { color: var(--ink-soft); font-size: 16px; margin: 0 0 18px; text-align: center; line-height: 1.5; }
@@ -93,16 +97,19 @@
   .status-line { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 17px; color: var(--ink-soft); min-height: 22px; text-align: center; }
   .recorder[data-state="recording"] .status-line { color: var(--record); }
 
-  .phone-link {
-    margin-top: 6px;
-    display: flex; align-items: center; gap: 8px;
-    background: none; border: none; cursor: pointer;
-    font-family: 'Space Grotesk', sans-serif; font-size: 14.5px;
-    color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
-    padding: 10px 8px; min-height: 44px;
+  .recorder-row { display: flex; align-items: center; gap: 22px; }
+
+  .phone-mic-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .phone-mic-btn {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 1px solid var(--rule); background: var(--panel); color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: border-color 150ms ease, color 150ms ease;
   }
-  .phone-link:hover { color: var(--ink); }
-  .phone-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .phone-mic-btn svg { width: 20px; height: 20px; }
+  .phone-mic-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .phone-mic-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .phone-mic-caption { font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--ink-soft); }
 
   .qr-overlay {
     display: none; position: fixed; inset: 0; background: rgba(28,28,30,0.55);
@@ -264,11 +271,16 @@
     font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.6;
     border: 1px solid var(--rule); border-radius: 8px; padding: 12px; color: var(--ink); background: var(--paper);
   }
-  .template-editor-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .template-editor-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .template-editor-actions button {
     font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
     padding: 10px 16px; border-radius: 7px; min-height: 44px; cursor: pointer;
   }
+  .template-saved-flash {
+    font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500; color: var(--ready);
+    opacity: 0; transition: opacity 200ms ease;
+  }
+  .template-saved-flash.visible { opacity: 1; }
   #templateDoneBtn { border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
   #templateRestoreBtn { border: 1px solid var(--rule); background: transparent; color: var(--ink-soft); }
   #templateRestoreBtn:hover { color: var(--record); border-color: var(--record); }
@@ -287,7 +299,7 @@
 
   .edit-template-link {
     display: inline-block;
-    margin-top: 10px;
+    margin-top: 14px;
     background: none; border: none; cursor: pointer;
     font-family: 'Space Grotesk', sans-serif; font-size: 13.5px;
     color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
@@ -296,12 +308,12 @@
   .edit-template-link:hover { color: var(--ink); }
   .edit-template-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-  .personal-page-cta, .slug-banner {
+  .personal-page-cta {
     display: none; margin-top: 20px; max-width: 560px; width: 100%;
     background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius);
     padding: 14px 18px; flex-direction: column; gap: 10px;
   }
-  .personal-page-cta.visible, .slug-banner.visible { display: flex; }
+  .personal-page-cta.visible { display: flex; }
 
   .personal-page-cta span:first-child { font-size: 14.5px; color: var(--ink-soft); line-height: 1.5; }
   .personal-page-row { display: flex; gap: 8px; }
@@ -316,15 +328,6 @@
     background: var(--ink); color: var(--paper); cursor: pointer; white-space: nowrap;
   }
   .personal-page-error { font-size: 13px; color: var(--record); min-height: 16px; }
-
-  .slug-banner { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  .slug-banner span { font-size: 15px; }
-  .slug-banner strong { font-family: 'IBM Plex Mono', monospace; }
-  .slug-banner button {
-    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
-    padding: 9px 14px; border-radius: 7px; border: 1px solid var(--ink); min-height: 44px;
-    background: transparent; color: var(--ink); cursor: pointer;
-  }
 
   .templates-card {
     display: none; margin-top: 16px; width: 100%; max-width: 1000px;
@@ -349,14 +352,14 @@
 </head>
 <body>
 
-  <div class="eyebrow">Consulta → Registro</div>
+  <div class="eyebrow">Consulta → Registro<span id="eyebrowSlug"></span></div>
   <h1>Grave a consulta</h1>
   <p class="subtitle">Acompanhe a transcrição e o registro clínico sendo preenchidos em tempo real.</p>
 
   <button id="moreOptionsBtn" class="more-options-link">Mais opções</button>
 
   <div class="personal-page-cta" id="personalPageCta">
-    <span>Quer uma página pessoal fixa, com seus modelos salvos e sincronização automática com o celular?</span>
+    <span>Quer uma página pessoal fixa, com suas receitas salvas e sincronização automática com o celular?</span>
     <div class="personal-page-row">
       <input type="text" id="personalSlugInput" placeholder="seu-nome-ou-apelido" maxlength="40">
       <button id="personalSlugGoBtn">Criar / acessar</button>
@@ -364,32 +367,38 @@
     <span class="personal-page-error" id="personalSlugError"></span>
   </div>
 
-  <div class="slug-banner" id="slugBanner">
-    <span>Sua página pessoal: <strong id="slugLabel"></strong></span>
-    <button id="slugCopyBtn">Copiar link</button>
-  </div>
-
   <div class="sync-toast" id="syncToast"></div>
 
   <div class="recorder" id="recorder" data-state="idle">
-    <div class="ring-wrap">
-      <div class="ring"></div>
-      <button id="recordBtn" aria-label="Iniciar gravação">
-        <svg class="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
-        <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-        <div class="spinner"></div>
-      </button>
+    <div class="recorder-row">
+      <div class="ring-wrap">
+        <div class="ring"></div>
+        <button id="recordBtn" aria-label="Iniciar gravação">
+          <svg class="icon-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          <div class="spinner"></div>
+        </button>
+      </div>
+      <div class="phone-mic-col" id="phoneMicCol">
+        <button id="phoneMicBtn" class="phone-mic-btn" aria-label="Usar celular como microfone" title="Usar celular como microfone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="7" y="2" width="10" height="20" rx="2"/>
+            <line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+        </button>
+        <span class="phone-mic-caption">Celular</span>
+      </div>
     </div>
     <div class="status-line" id="statusLine">Toque para gravar</div>
   </div>
 
   <div class="patient-type-row" id="patientTypeRow">
-    <button class="patient-type-btn active" data-type="adulto">Adulto</button>
+    <button class="patient-type-btn" data-type="adulto">Adulto</button>
     <button class="patient-type-btn" data-type="crianca">Criança</button>
     <button class="patient-type-btn" data-type="gestante">Gestante</button>
   </div>
@@ -400,19 +409,11 @@
     <p class="template-editor-hint">Este texto é usado como base para preencher o registro. Marcadores como "xxxx" e campos em branco são substituídos pelo que for dito na consulta; o resto do texto é mantido como está, a menos que a consulta diga algo diferente.</p>
     <textarea id="templateEditorBox"></textarea>
     <div class="template-editor-actions">
-      <button id="templateRestoreBtn" class="secondary-small">Restaurar modelo padrão</button>
+      <button id="templateRestoreBtn">Restaurar modelo padrão</button>
+      <span class="template-saved-flash" id="templateSavedFlash">Salvo</span>
       <button id="templateDoneBtn">Concluído</button>
     </div>
   </div>
-
-  <button id="phoneMicBtn" class="phone-link">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-      <rect x="7" y="2" width="10" height="20" rx="2"/>
-      <line x1="11" y1="18" x2="13" y2="18"/>
-    </svg>
-    Usar celular como microfone
-  </button>
-
 
   <div class="error-box" id="errorBox">
     <div id="errorText"></div>
@@ -464,10 +465,10 @@
 
   <div class="templates-card" id="templatesCard">
     <div class="card-header">
-      <span>Meus modelos (receitas / posologias)</span>
+      <span>Receitas e textos salvos</span>
       <span class="badge" id="templatesBadge"><span class="dot"></span><span>Salvo</span></span>
     </div>
-    <textarea id="templatesBox" placeholder="Guarde aqui modelos de receita, posologias e textos que você usa com frequência. Não inclua dados de pacientes aqui — diferente do resto do app, este bloco fica salvo permanentemente."></textarea>
+    <textarea id="templatesBox" placeholder="Guarde aqui receitas, posologias-padrão e textos que você usa com frequência. Não inclua dados de pacientes aqui — diferente do resto do app, este bloco fica salvo permanentemente."></textarea>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -532,7 +533,12 @@ Alta`
     try { window.localStorage.setItem('tmpl_' + type, text); } catch (e) {}
   }
 
+  const VALID_PATIENT_TYPES = ['adulto', 'crianca', 'gestante'];
   let currentPatientType = 'adulto';
+  try {
+    const savedType = window.localStorage.getItem('lastPatientType');
+    if (savedType && VALID_PATIENT_TYPES.includes(savedType)) currentPatientType = savedType;
+  } catch (e) {}
   const AUTO_SYNC_POLL_MS = 6000;
   let autoSyncTimer = null;
 
@@ -542,7 +548,6 @@ Alta`
   const errorBox = document.getElementById('errorBox');
   const errorText = document.getElementById('errorText');
   const retryBtn = document.getElementById('retryBtn');
-  const panel = document.getElementById('panel');
   const panelBadge = document.getElementById('panelBadge');
   const notepad = document.getElementById('notepad');
   const notepadBadge = document.getElementById('notepadBadge');
@@ -566,10 +571,13 @@ Alta`
   // ---------- Seletor de tipo de paciente + editor de modelo ----------
 
   document.querySelectorAll('.patient-type-btn').forEach((btn) => {
+    if (btn.dataset.type === currentPatientType) btn.classList.add('active');
+    else btn.classList.remove('active');
     btn.addEventListener('click', () => {
       document.querySelectorAll('.patient-type-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       currentPatientType = btn.dataset.type;
+      try { window.localStorage.setItem('lastPatientType', currentPatientType); } catch (e) {}
       if (document.getElementById('templateEditor').classList.contains('visible')) {
         document.getElementById('templateEditorBox').value = getTemplateForType(currentPatientType);
       }
@@ -592,6 +600,9 @@ Alta`
     clearTimeout(templateSaveTimer);
     templateSaveTimer = setTimeout(() => {
       saveTemplateForType(currentPatientType, templateEditorBox.value);
+      const flash = document.getElementById('templateSavedFlash');
+      flash.classList.add('visible');
+      setTimeout(() => flash.classList.remove('visible'), 1600);
     }, 800);
   });
 
@@ -622,12 +633,10 @@ Alta`
   const currentSlug = getSlugFromPath();
 
   const personalPageCta = document.getElementById('personalPageCta');
-  const slugBanner = document.getElementById('slugBanner');
   const templatesCard = document.getElementById('templatesCard');
 
   if (currentSlug) {
-    slugBanner.classList.add('visible');
-    document.getElementById('slugLabel').textContent = '/' + currentSlug;
+    document.getElementById('eyebrowSlug').textContent = '/' + currentSlug;
     templatesCard.classList.add('visible');
     startAutoSync();
   } else {
@@ -637,15 +646,6 @@ Alta`
   document.getElementById('moreOptionsBtn')?.addEventListener('click', (e) => {
     personalPageCta.classList.toggle('visible');
     e.target.textContent = personalPageCta.classList.contains('visible') ? 'Menos opções' : 'Mais opções';
-  });
-
-  document.getElementById('slugCopyBtn')?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.origin + '/' + currentSlug);
-      const btn = document.getElementById('slugCopyBtn');
-      btn.textContent = 'Copiado';
-      setTimeout(() => { btn.textContent = 'Copiar link'; }, 1500);
-    } catch (e) {}
   });
 
   function goToPersonalPage() {
@@ -752,6 +752,10 @@ Alta`
 
   async function startRecording() {
     hideError();
+    const hasContent = notepad.value.trim().length > 0 || registroOutput.value.trim().length > 0;
+    if (hasContent && !window.confirm('Já existe um registro desta consulta na tela. Gravar de novo vai substituí-lo. Continuar?')) {
+      return;
+    }
     if (!navigator.mediaDevices || !window.MediaRecorder) {
       showError('Este navegador não tem suporte à gravação de áudio. Tente Chrome, Edge ou Safari atualizado.');
       return;
@@ -1077,7 +1081,9 @@ Alta`
 
   const phoneMicBtn = document.getElementById('phoneMicBtn');
   const isMobileDevice = /Android|iPhone|iPod|Mobile|webOS/i.test(navigator.userAgent);
-  if (isMobileDevice) phoneMicBtn.style.display = 'none';
+  if (isMobileDevice) {
+    document.getElementById('phoneMicCol').style.display = 'none';
+  }
 
   const qrOverlay = document.getElementById('qrOverlay');
   const qrCloseBtn = document.getElementById('qrCloseBtn');
