@@ -36,7 +36,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 28px 20px 40px;
+    padding: 20px 20px 32px;
   }
 
   .eyebrow {
@@ -53,12 +53,26 @@
   .eyebrow #eyebrowSlug::before { content: ' · '; color: var(--ink-soft); }
 
   h1 { font-size: clamp(26px, 5vw, 34px); font-weight: 700; margin: 0 0 6px; text-align: center; }
-  .subtitle { color: var(--ink-soft); font-size: 16px; margin: 0 0 18px; text-align: center; line-height: 1.5; }
+  .subtitle { color: var(--ink-soft); font-size: 16px; margin: 0 0 14px; text-align: center; line-height: 1.5; }
 
-  /* --- Record button --- */
-  .recorder { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  /* --- Barra de controles: tipo de paciente + gravador + ações --- */
+  .control-bar {
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: 16px; margin-top: 6px;
+  }
 
-  .ring-wrap { position: relative; width: 124px; height: 124px; display: flex; align-items: center; justify-content: center; }
+  .patient-type-select {
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
+    padding: 0 12px; height: 40px; border-radius: 20px; border: 1px solid var(--rule);
+    background: var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2354524D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>') no-repeat right 10px center / 14px;
+    color: var(--ink); cursor: pointer; appearance: none; -webkit-appearance: none;
+    padding-right: 30px;
+  }
+  .patient-type-select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .recorder { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+  .ring-wrap { position: relative; width: 92px; height: 92px; display: flex; align-items: center; justify-content: center; }
 
   .ring {
     position: absolute; inset: 0; border-radius: 50%;
@@ -70,7 +84,7 @@
   .recorder[data-state="recording"] .ring { opacity: 1; }
 
   #recordBtn {
-    position: relative; width: 92px; height: 92px; border-radius: 50%;
+    position: relative; width: 72px; height: 72px; border-radius: 50%;
     border: none; background: var(--ink); color: var(--paper); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: background 200ms ease, transform 120ms ease;
@@ -79,7 +93,7 @@
   #recordBtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
   .recorder[data-state="recording"] #recordBtn { background: var(--record); }
   .recorder[data-state="processing"] #recordBtn { background: var(--ink-soft); cursor: default; }
-  #recordBtn svg { width: 28px; height: 28px; }
+  #recordBtn svg { width: 24px; height: 24px; }
 
   .icon-stop { display: none; }
   .recorder[data-state="recording"] .icon-mic { display: none; }
@@ -87,29 +101,27 @@
   .recorder[data-state="processing"] .icon-mic, .recorder[data-state="processing"] .icon-stop { display: none; }
 
   .spinner {
-    display: none; width: 24px; height: 24px;
+    display: none; width: 20px; height: 20px;
     border: 3px solid rgba(247,246,242,0.35); border-top-color: var(--paper);
     border-radius: 50%; animation: spin 0.8s linear infinite;
   }
   .recorder[data-state="processing"] .spinner { display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .status-line { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 17px; color: var(--ink-soft); min-height: 22px; text-align: center; }
+  .status-line { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 13.5px; color: var(--ink-soft); min-height: 18px; text-align: center; white-space: nowrap; }
   .recorder[data-state="recording"] .status-line { color: var(--record); }
 
-  .recorder-row { display: flex; align-items: center; gap: 22px; }
-
-  .phone-mic-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .phone-mic-btn {
-    width: 52px; height: 52px; border-radius: 50%;
+  .control-bar-icons { display: flex; align-items: center; gap: 10px; }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 50%;
     border: 1px solid var(--rule); background: var(--panel); color: var(--ink-soft);
     display: flex; align-items: center; justify-content: center; cursor: pointer;
-    transition: border-color 150ms ease, color 150ms ease;
+    transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
   }
-  .phone-mic-btn svg { width: 20px; height: 20px; }
-  .phone-mic-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
-  .phone-mic-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .phone-mic-caption { font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--ink-soft); }
+  .icon-btn svg { width: 19px; height: 19px; }
+  .icon-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .icon-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .icon-btn.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 
   .qr-overlay {
     display: none; position: fixed; inset: 0; background: rgba(28,28,30,0.55);
@@ -168,7 +180,7 @@
 
   /* --- Workspace: notepad + SOAP panel --- */
   .workspace {
-    margin-top: 20px; width: 100%; max-width: 560px;
+    margin-top: 14px; width: 100%; max-width: 560px;
     display: flex; flex-direction: column; gap: 18px;
   }
   @media (min-width: 920px) {
@@ -249,20 +261,10 @@
 
   /* --- Páginas pessoais --- */
 
-  .patient-type-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
-  .patient-type-btn {
-    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
-    padding: 9px 16px; border-radius: 20px; border: 1px solid var(--rule); min-height: 40px;
-    background: var(--panel); color: var(--ink-soft); cursor: pointer; transition: all 150ms ease;
-  }
-  .patient-type-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
-  .patient-type-btn.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-  .patient-type-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-
   .template-editor {
-    display: none; margin-top: 10px; width: 100%; max-width: 560px;
+    display: none; margin-top: 8px; width: 100%; max-width: 560px;
     background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius);
-    padding: 16px 18px; flex-direction: column; gap: 10px;
+    padding: 14px 16px; flex-direction: column; gap: 10px;
   }
   .template-editor.visible { display: flex; }
   .template-editor-hint { font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin: 0; }
@@ -287,7 +289,7 @@
 
   .more-options-link {
     display: none;
-    margin-top: 14px;
+    margin-top: 10px;
     background: none; border: none; cursor: pointer;
     font-family: 'Space Grotesk', sans-serif; font-size: 13.5px;
     color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
@@ -296,17 +298,6 @@
   .more-options-link.visible { display: inline-block; }
   .more-options-link:hover { color: var(--ink); }
   .more-options-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-
-  .edit-template-link {
-    display: inline-block;
-    margin-top: 14px;
-    background: none; border: none; cursor: pointer;
-    font-family: 'Space Grotesk', sans-serif; font-size: 13.5px;
-    color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
-    padding: 10px 8px; min-height: 44px;
-  }
-  .edit-template-link:hover { color: var(--ink); }
-  .edit-template-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
   .personal-page-cta {
     display: none; margin-top: 20px; max-width: 560px; width: 100%;
@@ -369,8 +360,14 @@
 
   <div class="sync-toast" id="syncToast"></div>
 
-  <div class="recorder" id="recorder" data-state="idle">
-    <div class="recorder-row">
+  <div class="control-bar">
+    <select id="patientTypeSelect" class="patient-type-select" aria-label="Tipo de paciente">
+      <option value="adulto">Adulto</option>
+      <option value="crianca">Criança</option>
+      <option value="gestante">Gestante</option>
+    </select>
+
+    <div class="recorder" id="recorder" data-state="idle">
       <div class="ring-wrap">
         <div class="ring"></div>
         <button id="recordBtn" aria-label="Iniciar gravação">
@@ -384,26 +381,23 @@
           <div class="spinner"></div>
         </button>
       </div>
-      <div class="phone-mic-col" id="phoneMicCol">
-        <button id="phoneMicBtn" class="phone-mic-btn" aria-label="Usar celular como microfone" title="Usar celular como microfone">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="7" y="2" width="10" height="20" rx="2"/>
-            <line x1="11" y1="18" x2="13" y2="18"/>
-          </svg>
-        </button>
-        <span class="phone-mic-caption">Celular</span>
-      </div>
+      <div class="status-line" id="statusLine">Toque para gravar</div>
     </div>
-    <div class="status-line" id="statusLine">Toque para gravar</div>
-  </div>
 
-  <div class="patient-type-row" id="patientTypeRow">
-    <button class="patient-type-btn" data-type="adulto">Adulto</button>
-    <button class="patient-type-btn" data-type="crianca">Criança</button>
-    <button class="patient-type-btn" data-type="gestante">Gestante</button>
+    <div class="control-bar-icons">
+      <button id="phoneMicBtn" class="icon-btn" aria-label="Usar celular como microfone" title="Usar celular como microfone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="7" y="2" width="10" height="20" rx="2"/>
+          <line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+      </button>
+      <button id="editTemplateBtn" class="icon-btn" aria-label="Editar modelo do registro" title="Editar modelo do registro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 3a2.85 2.65 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+        </svg>
+      </button>
+    </div>
   </div>
-
-  <button id="editTemplateBtn" class="edit-template-link">Editar modelo</button>
 
   <div class="template-editor" id="templateEditor">
     <p class="template-editor-hint">Este texto é usado como base para preencher o registro. Marcadores como "xxxx" e campos em branco são substituídos pelo que for dito na consulta; o resto do texto é mantido como está, a menos que a consulta diga algo diferente.</p>
@@ -570,18 +564,14 @@ Alta`
 
   // ---------- Seletor de tipo de paciente + editor de modelo ----------
 
-  document.querySelectorAll('.patient-type-btn').forEach((btn) => {
-    if (btn.dataset.type === currentPatientType) btn.classList.add('active');
-    else btn.classList.remove('active');
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.patient-type-btn').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentPatientType = btn.dataset.type;
-      try { window.localStorage.setItem('lastPatientType', currentPatientType); } catch (e) {}
-      if (document.getElementById('templateEditor').classList.contains('visible')) {
-        document.getElementById('templateEditorBox').value = getTemplateForType(currentPatientType);
-      }
-    });
+  const patientTypeSelect = document.getElementById('patientTypeSelect');
+  patientTypeSelect.value = currentPatientType;
+  patientTypeSelect.addEventListener('change', () => {
+    currentPatientType = patientTypeSelect.value;
+    try { window.localStorage.setItem('lastPatientType', currentPatientType); } catch (e) {}
+    if (document.getElementById('templateEditor').classList.contains('visible')) {
+      document.getElementById('templateEditorBox').value = getTemplateForType(currentPatientType);
+    }
   });
 
   const editTemplateBtn = document.getElementById('editTemplateBtn');
@@ -592,7 +582,7 @@ Alta`
   editTemplateBtn.addEventListener('click', () => {
     const opening = !templateEditor.classList.contains('visible');
     templateEditor.classList.toggle('visible');
-    editTemplateBtn.textContent = templateEditor.classList.contains('visible') ? 'Fechar modelo' : 'Editar modelo';
+    editTemplateBtn.classList.toggle('active', opening);
     if (opening) templateEditorBox.value = getTemplateForType(currentPatientType);
   });
 
@@ -615,7 +605,7 @@ Alta`
 
   document.getElementById('templateDoneBtn').addEventListener('click', () => {
     templateEditor.classList.remove('visible');
-    editTemplateBtn.textContent = 'Editar modelo';
+    editTemplateBtn.classList.remove('active');
   });
 
   // ---------- Páginas pessoais (rota dinâmica tipo /seu-nome) ----------
@@ -1082,7 +1072,7 @@ Alta`
   const phoneMicBtn = document.getElementById('phoneMicBtn');
   const isMobileDevice = /Android|iPhone|iPod|Mobile|webOS/i.test(navigator.userAgent);
   if (isMobileDevice) {
-    document.getElementById('phoneMicCol').style.display = 'none';
+    phoneMicBtn.style.display = 'none';
   }
 
   const qrOverlay = document.getElementById('qrOverlay');
