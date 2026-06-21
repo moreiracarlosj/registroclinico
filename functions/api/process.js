@@ -6,11 +6,12 @@
 // usa /api/structure, que é gratuito do lado da transcrição.
 //
 // Fluxo:
-//   1. Recebe o áudio gravado no navegador (multipart/form-data, campo "audio").
-//   2. Envia para a Groq (Whisper) para transcrição em português.
-//   3. Envia a transcrição para um modelo da Groq, pedindo a resposta em JSON
-//      já estruturada nos 4 campos do registro.
-//   4. Devolve { transcript, soap: {queixaHda, exameFisico, hipoteseDiagnostica, conduta}, soap_raw }.
+//   1. Recebe o áudio gravado no navegador e o MODELO escolhido pelo médico
+//      (multipart/form-data, campos "audio" e "template").
+//   2. Envia o áudio para a Groq (Whisper) para transcrição em português.
+//   3. Envia a transcrição + o modelo para um modelo da Groq, pedindo o
+//      modelo preenchido de volta como texto puro.
+//   4. Devolve { transcript, registro }.
 //
 // A chave da API (GROQ_API_KEY) nunca é exposta ao navegador: ela só existe
 // nas variáveis de ambiente da função, configuradas no painel da Cloudflare.
@@ -18,20 +19,18 @@
 const TRANSCRIPTION_MODEL = 'whisper-large-v3-turbo';
 const CHAT_MODEL = 'llama-3.1-8b-instant';
 
-const SYSTEM_PROMPT = `Você é um assistente de documentação médica de pronto-socorro/emergência. Você recebe a transcrição bruta de um atendimento (fala natural, podendo ter trechos truncados ou ambíguos) e deve organizá-la em um registro clínico objetivo, em português, no padrão usado em emergência.
+const SYSTEM_PROMPT = `Você é um assistente de documentação médica de pronto-socorro/emergência. Você recebe um MODELO de registro clínico (texto-padrão com estrutura fixa, frases de achados normais já escritas, e marcadores de preenchimento como "xxxx", "????", campos em branco ou rótulos seguidos de dois-pontos) e a TRANSCRIÇÃO de um atendimento real.
+
+Sua tarefa: preencher o modelo com as informações da transcrição, devolvendo o texto completo do modelo já preenchido.
 
 Regras obrigatórias:
-- Use apenas informações presentes na transcrição. Nunca invente sintomas, achados, diagnósticos ou condutas que não foram mencionados.
-- Se uma seção não tiver informação suficiente na transcrição, escreva exatamente: "Não relatado nesta consulta."
-- Seja conciso e objetivo, como um médico escreveria em prontuário de emergência — frases curtas, sem floreios. A queixa principal/HDA deve ser especialmente enxuta.
-- Responda APENAS com um objeto JSON válido, sem nenhum texto antes ou depois, no formato exato:
-{"queixaHda": "...", "exameFisico": "...", "hipoteseDiagnostica": "...", "conduta": "..."}
-
-Onde:
-- queixaHda: queixa principal e história da doença atual (sintomas, início, evolução, fatores associados).
-- exameFisico: achados de exame físico, sinais vitais, resultados de exames mencionados.
-- hipoteseDiagnostica: hipóteses diagnósticas, impressão clínica.
-- conduta: conduta tomada, prescrições, exames solicitados, orientações, encaminhamento ou alta.`;
+- Mantenha a estrutura, a ordem das seções e a redação padrão do modelo o máximo possível.
+- Substitua marcadores de preenchimento (xxxx, ????, campos em branco, valores genéricos) pelas informações reais ditas na transcrição.
+- Frases de achados normais já escritas no modelo (ex.: "Sem sinais de desconforto respiratório", "RCR em 2T com BNF") devem ser MANTIDAS exatamente como estão, a menos que a transcrição diga explicitamente algo diferente — nesse caso, substitua pela informação real relatada.
+- Nunca invente informações que não estejam na transcrição nem façam parte do texto padrão do modelo.
+- Se uma informação pedida pelo modelo (ex.: peso, idade gestacional, hipótese diagnóstica, conduta) não foi mencionada na transcrição, deixe o campo correspondente em branco — não invente um valor.
+- Preserve as quebras de linha do modelo.
+- Responda APENAS com o texto final preenchido. Não inclua comentários, explicações, aspas ao redor do texto, ou qualquer marcação adicional (sem JSON, sem markdown).`;
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -40,16 +39,20 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: 'GROQ_API_KEY não configurada no ambiente da função.' }, 500);
   }
 
-  let audioFile;
+  let audioFile, template;
   try {
     const formData = await request.formData();
     audioFile = formData.get('audio');
+    template = (formData.get('template') || '').toString().trim();
   } catch (err) {
     return jsonResponse({ error: 'Não foi possível ler o áudio enviado.' }, 400);
   }
 
   if (!audioFile || typeof audioFile === 'string') {
     return jsonResponse({ error: 'Nenhum arquivo de áudio recebido.' }, 400);
+  }
+  if (!template) {
+    return jsonResponse({ error: 'Modelo vazio.' }, 400);
   }
 
   // 1. Transcrição
@@ -82,9 +85,8 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: 'Erro de rede ao transcrever o áudio.', details: String(err) }, 502);
   }
 
-  // 2. Estruturação em SOAP
-  let soap = null;
-  let soapRaw = '';
+  // 2. Preenchimento do modelo
+  let registro = '';
   try {
     const chatRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -95,32 +97,25 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         model: CHAT_MODEL,
         temperature: 0.2,
-        response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: `Transcrição da consulta:\n\n${transcript}` }
+          { role: 'user', content: `MODELO:\n${template}\n\nTRANSCRIÇÃO:\n${transcript}` }
         ]
       })
     });
 
     if (!chatRes.ok) {
       const details = await safeText(chatRes);
-      return jsonResponse({ error: 'Falha ao gerar o registro SOAP.', details, transcript }, 502);
+      return jsonResponse({ error: 'Falha ao gerar o registro.', details, transcript }, 502);
     }
 
     const chatData = await chatRes.json();
-    soapRaw = chatData.choices?.[0]?.message?.content || '';
-
-    try {
-      soap = JSON.parse(soapRaw);
-    } catch (parseErr) {
-      soap = null; // o front-end usa soap_raw como reserva neste caso
-    }
+    registro = (chatData.choices?.[0]?.message?.content || '').trim();
   } catch (err) {
-    return jsonResponse({ error: 'Erro de rede ao gerar o registro SOAP.', details: String(err), transcript }, 502);
+    return jsonResponse({ error: 'Erro de rede ao gerar o registro.', details: String(err), transcript }, 502);
   }
 
-  return jsonResponse({ transcript, soap, soap_raw: soapRaw }, 200);
+  return jsonResponse({ transcript, registro }, 200);
 }
 
 async function safeText(res) {

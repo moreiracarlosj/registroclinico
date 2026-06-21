@@ -1,6 +1,6 @@
 # Consulta → Registro
 
-App de uma página: grava a consulta, transcreve com IA e gera o registro clínico em SOAP, editável e exportável.
+App de uma página: grava a consulta, transcreve com IA e preenche um modelo de registro clínico (Adulto, Criança ou Gestante), editável e exportável.
 
 ## Estrutura
 
@@ -8,20 +8,26 @@ App de uma página: grava a consulta, transcreve com IA e gera o registro clíni
 index.html                  ← página única (frontend)
 _redirects                  ← faz qualquer URL (ex.: /seu-nome) servir o mesmo index.html
 functions/api/structure.js  ← caminho PADRÃO: só texto (já transcrito no navegador), modelo barato (llama-3.1-8b-instant)
-functions/api/process.js    ← caminho de RESERVA: Whisper + estruturação, usado só quando o navegador não tem reconhecimento de voz nativo
+functions/api/process.js    ← caminho de RESERVA: Whisper + preenchimento, usado só quando o navegador não tem reconhecimento de voz nativo
 functions/api/templates.js  ← bloco de modelos persistente (receitas/posologias), por página pessoal
-functions/api/relay.js      ← canal efêmero pra sincronizar celular → computador na mesma página pessoal
+functions/api/relay.js      ← canal efêmero pra sincronizar automaticamente qualquer aparelho aberto na mesma página pessoal
 ```
 
-Por padrão, o áudio nunca sai do navegador. A transcrição usa o reconhecimento de voz nativo do navegador (Web Speech API) — gratuito, roda no próprio dispositivo. Quando a gravação termina, só o texto já transcrito é enviado para `/api/structure`, que pede pra IA organizar nos 4 campos do registro. Isso é praticamente gratuito: um modelo pequeno, sem chamada de transcrição nenhuma.
+Por padrão, o áudio nunca sai do navegador. A transcrição usa o reconhecimento de voz nativo do navegador (Web Speech API) — gratuito, roda no próprio dispositivo. Quando a gravação termina, só o texto já transcrito (mais o modelo escolhido) é enviado para `/api/structure`, que pede pra IA preencher o modelo. Isso é praticamente gratuito: um modelo pequeno, sem chamada de transcrição nenhuma.
 
 `/api/process` (com Whisper, mais caro) só entra em ação como reserva: navegadores sem suporte a reconhecimento de voz (Firefox, Safari mais antigo), ou se a transcrição ao vivo vier vazia/curta demais. Há também uma rede de segurança automática: se `/api/structure` falhar por qualquer motivo, o app tenta `/api/process` com o áudio gravado antes de desistir.
 
-Durante a gravação, o painel de "o que está faltando" não chama IA nenhuma — usa um detector de palavras-chave 100% local no navegador (ex.: menção a "PA", "ausculta", "febre" etc.) só pra sinalizar o que já foi tocado. O texto final, bem redigido, só é gerado uma vez, quando a gravação para.
+O resultado é um texto único (não mais campos separados) — o próprio modelo já preenchido, mantendo a estrutura e as frases padrão de achados normais onde a consulta não disser algo diferente. A transcrição ao vivo no bloco de notas continua sendo a referência em tempo real durante a gravação.
 
 Funciona bem no Chrome e no Edge; no Safari o suporte a reconhecimento de voz varia; no Firefox não há suporte nativo (esses casos caem automaticamente no caminho de reserva com Whisper).
 
-O `index.html` nunca fala diretamente com a IA. Ele envia o áudio para `/api/process`, que roda no servidor da Cloudflare e é o único lugar que conhece sua chave de API. Assim a chave nunca fica exposta no navegador.
+O `index.html` nunca fala diretamente com a IA. Ele envia o áudio (ou o texto) para as funções acima, que rodam no servidor da Cloudflare e são o único lugar que conhece sua chave de API. Assim a chave nunca fica exposta no navegador.
+
+## Modelos por tipo de paciente
+
+Três botões (Adulto, Criança, Gestante) escolhem qual modelo é usado para preencher o registro daquela consulta. Cada modelo é um texto-padrão com marcadores de preenchimento (como "xxxx" ou campos em branco) e frases de achados normais já escritas — a IA substitui só o que precisa, mantendo o resto.
+
+Os modelos são editáveis (botão "Editar modelo") e ficam salvos no `localStorage` do navegador — por dispositivo, sem depender de KV nem de página pessoal. Use "Restaurar modelo padrão" para voltar ao texto original daquele tipo a qualquer momento.
 
 ## Passo 1 — Conta na Groq (transcrição + IA, gratuito)
 
@@ -72,7 +78,7 @@ Este app lida com dados sensíveis de pacientes (art. 11 da LGPD). Pontos a cons
 
 - **Nada fica salvo no servidor por padrão.** O áudio é processado e descartado a cada requisição — não há banco de dados na gravação/registro da consulta em si.
 - **Exceção, por design:** se você configurar o KV (Passo 5) e usar páginas pessoais, o bloco de modelos passa a ser persistente — é para isso que ele serve. Isso não é exceção para dado de paciente, só para os modelos genéricos. O canal de sincronização do celular é temporário (expira sozinho em 10 min, leitura única).
-- Evite que o paciente cite nome completo, CPF ou outros identificadores diretos durante a gravação (já há um lembrete disso na própria tela).
+- Evite que o paciente cite nome completo, CPF ou outros identificadores diretos durante a gravação (esse lembrete não aparece mais na tela, a pedido — vale ter isso em mente mesmo assim).
 - O áudio e a transcrição passam pelos servidores da Groq durante o processamento. Vale ler os termos de uso e a política de retenção de dados deles antes de adotar em produção: https://groq.com/privacy-policy/
 - Sempre revise o texto gerado pela IA antes de colar no prontuário oficial — é um rascunho, não um documento validado.
 
@@ -80,18 +86,18 @@ Isto não é orientação jurídica. Se for usar com pacientes reais de forma ro
 
 ## Páginas pessoais (`/seu-nome`)
 
-Funciona como o bloco de notas do invertexto.com: não tem login. Quem acessa `https://seu-projeto.pages.dev/qualquer-coisa` "cria" essa página automaticamente — o conteúdo salvo nela (bloco de modelos) e o canal de sincronização do celular ficam disponíveis a partir daí, sem nenhum cadastro.
+Funciona como o bloco de notas do invertexto.com: não tem login. Quem acessa `https://seu-projeto.pages.dev/qualquer-coisa` "cria" essa página automaticamente — o conteúdo salvo nela (bloco de modelos) e a sincronização automática entre aparelhos ficam disponíveis a partir daí, sem nenhum cadastro.
 
-**Isso tem uma implicação de segurança que vale entender:** como não há senha, o endereço/slug *é* a senha. Qualquer pessoa que souber ou adivinhar `/joaosilva` consegue ler e escrever o bloco de modelos daquela página, e em tese poderia interferir na sincronização do celular enquanto ela está em andamento (poucos minutos, depois expira). Por isso:
+**Isso tem uma implicação de segurança que vale entender:** como não há senha, o endereço/slug *é* a senha. Qualquer pessoa que souber ou adivinhar `/joaosilva` consegue ler e escrever o bloco de modelos daquela página, e em tese poderia capturar um registro publicado para sincronização (poucos minutos, depois expira). Por isso:
 - Prefira um slug mais longo e não óbvio (ex.: algo como `/clinica-js-7k2m`) em vez do seu nome puro, principalmente se for sincronizar consultas reais pelo celular.
 - O bloco de modelos é para conteúdo genérico (receitas, posologias-padrão) — **nunca** inclua dado de paciente nele, porque, diferente do resto do app, ele fica salvo permanentemente até você apagar.
-- O canal de sincronização do celular é temporário (expira em 10 minutos e é apagado assim que o computador lê), mas ainda assim transita o conteúdo da consulta por alguns instantes — outro motivo para usar um slug difícil de adivinhar.
+- O canal de sincronização é temporário (expira em 10 minutos e é apagado assim que alguém lê), mas ainda assim transita o conteúdo da consulta por alguns instantes — outro motivo para usar um slug difícil de adivinhar.
 
 ## Usar o celular como microfone
 
 Na página raiz (`/`), o botão "Usar celular como microfone" mostra um QR code que apenas abre o site no celular — sem sincronização. O resultado fica no celular; copie/exporte por lá.
 
-Numa página pessoal (`/seu-nome`), o mesmo botão funciona de um jeito diferente: como os dois aparelhos estão no mesmo endereço, o computador passa a acompanhar o canal de sincronização daquela página enquanto o QR está aberto. Quando o celular termina a gravação, o resultado aparece sozinho na tela do computador — não precisa copiar nada. Se você fechar o modal do QR antes do celular terminar, a sincronização para; reabra o modal para retomar.
+Numa página pessoal (`/seu-nome`), a sincronização é automática e ambiente — não existe "conectar". Qualquer aparelho aberto naquela página (computador, celular, outra aba) busca periodicamente por novidades em segundo plano, sozinho, assim que a página carrega. Quando qualquer um desses aparelhos termina uma gravação, o registro produzido é publicado nesse canal; os demais aparelhos pegam essa atualização sozinhos, em poucos segundos, e mostram um aviso rápido ("Registro atualizado a partir de outro aparelho"). Não precisa abrir o QR nem deixar nenhum modal aberto — o QR serve só para abrir a página no celular. Há um interruptor "Sincronizar automaticamente" ao lado do nome da página pessoal, ligado por padrão, caso você prefira desativar.
 
 ## Possíveis ajustes futuros
 

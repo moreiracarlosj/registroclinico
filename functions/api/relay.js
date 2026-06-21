@@ -1,9 +1,13 @@
 // functions/api/relay.js
 //
-// Canal efêmero pra sincronizar o resultado gravado no celular com a tela
-// do computador, quando os dois estão na mesma página pessoal (/seu-slug).
-// Curta duração (expira sozinho em 10 min) e leitura única — depois que o
-// computador lê um resultado "done", ele é apagado da KV.
+// Canal efêmero pra sincronizar automaticamente qualquer registro produzido
+// numa página pessoal (/seu-slug) com qualquer outra aba/aparelho aberto na
+// mesma página — sem conceito de "conectar". Cada dispositivo que termina
+// uma gravação publica o resultado aqui; qualquer outro que esteja com a
+// sincronização automática ligada (padrão) busca isso periodicamente.
+//
+// Curta duração (expira sozinho em 10 min) e leitura única — depois que
+// alguém lê um resultado pendente, ele é apagado da KV.
 //
 // Isso é diferente de templates.js: aqui pode passar conteúdo real da
 // consulta (texto/registro), só que de forma temporária — nunca fica salvo
@@ -29,11 +33,8 @@ export async function onRequestGet(context) {
   }
   if (!payload) return jsonResponse({ status: 'empty' }, 200);
 
-  if (payload.status === 'done') {
-    await env.APP_KV.delete(`relay:${slug}`); // leitura única
-  }
-
-  return jsonResponse(payload, 200);
+  await env.APP_KV.delete(`relay:${slug}`); // leitura única
+  return jsonResponse({ status: 'pending', registro: payload.registro, transcript: payload.transcript }, 200);
 }
 
 export async function onRequestPost(context) {
@@ -51,9 +52,7 @@ export async function onRequestPost(context) {
   if (!slug) return jsonResponse({ error: 'Slug inválido.' }, 400);
 
   const payload = {
-    status: body.status === 'done' ? 'done' : 'connected',
-    soap: body.soap || null,
-    soap_raw: String(body.soap_raw || ''),
+    registro: String(body.registro || ''),
     transcript: String(body.transcript || '')
   };
 
@@ -76,3 +75,4 @@ function jsonResponse(obj, status) {
     headers: { 'Content-Type': 'application/json' }
   });
 }
+

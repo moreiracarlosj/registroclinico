@@ -12,7 +12,7 @@
     --paper: #F7F6F2;
     --panel: #FFFFFF;
     --ink: #1C1C1E;
-    --ink-soft: #6B6A66;
+    --ink-soft: #54524D;
     --rule: #DDDAD2;
     --record: #C8553D;
     --record-dim: rgba(200, 85, 61, 0.16);
@@ -41,15 +41,15 @@
 
   .eyebrow {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
+    font-size: 13px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ink-soft);
     margin-bottom: 6px;
   }
 
-  h1 { font-size: clamp(22px, 4vw, 28px); font-weight: 700; margin: 0 0 4px; text-align: center; }
-  .subtitle { color: var(--ink-soft); font-size: 14px; margin: 0 0 32px; text-align: center; }
+  h1 { font-size: clamp(26px, 5vw, 34px); font-weight: 700; margin: 0 0 6px; text-align: center; }
+  .subtitle { color: var(--ink-soft); font-size: 16px; margin: 0 0 32px; text-align: center; line-height: 1.5; }
 
   /* --- Record button --- */
   .recorder { display: flex; flex-direction: column; align-items: center; gap: 12px; }
@@ -90,18 +90,16 @@
   .recorder[data-state="processing"] .spinner { display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .status-line { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft); min-height: 18px; text-align: center; }
+  .status-line { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 17px; color: var(--ink-soft); min-height: 22px; text-align: center; }
   .recorder[data-state="recording"] .status-line { color: var(--record); }
-
-  .privacy-note { margin-top: 18px; font-size: 12px; color: var(--ink-soft); text-align: center; max-width: 360px; font-style: italic; }
 
   .phone-link {
     margin-top: 16px;
-    display: flex; align-items: center; gap: 7px;
+    display: flex; align-items: center; gap: 8px;
     background: none; border: none; cursor: pointer;
-    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 14.5px;
     color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
-    padding: 4px;
+    padding: 10px 8px; min-height: 44px;
   }
   .phone-link:hover { color: var(--ink); }
   .phone-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -121,15 +119,16 @@
     padding: 14px 18px; border-bottom: 1px solid var(--rule);
   }
   .qr-header span {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--ink-soft);
   }
   .qr-header button {
-    background: none; border: none; cursor: pointer; color: var(--ink-soft); font-size: 16px; line-height: 1;
+    background: none; border: none; cursor: pointer; color: var(--ink-soft); font-size: 22px; line-height: 1;
+    padding: 10px; min-height: 44px; min-width: 44px;
   }
   .qr-header button:hover { color: var(--ink); }
 
-  .qr-instructions { padding: 14px 18px 4px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  .qr-instructions { padding: 14px 18px 4px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
 
   .qr-code-box {
     display: flex; align-items: center; justify-content: center;
@@ -137,27 +136,27 @@
   }
   .qr-code-box img, .qr-code-box canvas { border-radius: 6px; }
 
-  .qr-link-fallback { padding: 0 18px; font-size: 11.5px; color: var(--ink-soft); font-style: italic; }
+  .qr-link-fallback { padding: 0 18px; font-size: 13px; color: var(--ink-soft); font-style: italic; }
   .qr-link-row { display: flex; gap: 8px; padding: 8px 18px 18px; }
   .qr-link-row input {
-    flex: 1; min-width: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
-    border: 1px solid var(--rule); border-radius: 6px; padding: 7px 9px; color: var(--ink-soft); background: var(--paper);
+    flex: 1; min-width: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    border: 1px solid var(--rule); border-radius: 6px; padding: 10px; color: var(--ink-soft); background: var(--paper);
   }
   .qr-link-row button {
-    font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500;
-    padding: 7px 12px; border-radius: 6px; border: 1px solid var(--ink);
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
+    padding: 10px 16px; border-radius: 6px; border: 1px solid var(--ink); min-height: 44px;
     background: var(--ink); color: var(--paper); cursor: pointer;
   }
 
   .error-box {
     display: none; margin-top: 20px; max-width: 560px; width: 100%;
-    background: #FBEAE6; border: 1px solid var(--record); color: #7A3422;
-    border-radius: var(--radius); padding: 14px 16px; font-size: 13px; line-height: 1.5;
+    background: #FBEAE6; border: 1px solid var(--record); color: #6B2A1B;
+    border-radius: var(--radius); padding: 16px 18px; font-size: 15px; line-height: 1.55;
   }
   .error-box.visible { display: block; }
   .error-box button {
-    margin-top: 8px; background: none; border: 1px solid #7A3422; color: #7A3422;
-    border-radius: 6px; padding: 5px 12px; font-family: inherit; font-size: 12px; cursor: pointer;
+    margin-top: 10px; background: none; border: 1px solid #6B2A1B; color: #6B2A1B;
+    border-radius: 6px; padding: 9px 16px; font-family: inherit; font-size: 14px; cursor: pointer; min-height: 44px;
   }
 
   /* --- Workspace: notepad + SOAP panel --- */
@@ -172,17 +171,17 @@
 
   .card-header, .panel-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 18px; border-bottom: 1px solid var(--rule);
+    padding: 14px 18px; border-bottom: 1px solid var(--rule);
   }
   .card-header span:first-child, .panel-header span:first-child {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing: 0.08em;
     text-transform: uppercase; color: var(--ink-soft);
   }
   .badge {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--ink-soft);
     display: flex; align-items: center; gap: 6px;
   }
-  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-soft); }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-soft); }
   .badge.live { color: var(--record); }
   .badge.live .dot { background: var(--record); animation: pulse 1.3s ease-in-out infinite; }
   .badge.done { color: var(--ready); }
@@ -195,48 +194,36 @@
   }
   #notepad {
     border: none; resize: vertical; outline: none;
-    font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; line-height: 1.7;
-    color: var(--ink); padding: 16px 18px; min-height: 260px; background: transparent;
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px; line-height: 1.7;
+    color: var(--ink); padding: 18px; min-height: 260px; background: transparent;
   }
   #notepad::placeholder { color: var(--ink-soft); font-style: italic; }
   .notepad-hint {
-    padding: 8px 18px 14px; font-size: 11.5px; color: var(--ink-soft); font-style: italic;
+    padding: 8px 18px 14px; font-size: 13px; color: var(--ink-soft); font-style: italic;
     display: none;
   }
   .notepad-hint.visible { display: block; }
 
   .panel {
     background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden;
+    display: flex; flex-direction: column;
   }
   .panel-header { background: var(--ready-dim); }
 
-  .section { padding: 16px 18px; border-bottom: 1px solid var(--rule); transition: border-color 200ms ease; }
-  .section:last-of-type { border-bottom: none; }
-  .section label {
-    display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-    letter-spacing: 0.06em; color: var(--ink-soft); margin-bottom: 7px;
+  #registroOutput {
+    border: none; resize: vertical; outline: none;
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px; line-height: 1.65;
+    color: var(--ink); padding: 18px; min-height: 280px; background: transparent;
+    white-space: pre-wrap;
   }
-  .section [contenteditable] {
-    font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; line-height: 1.6;
-    white-space: pre-wrap; outline: none; min-height: 18px;
-  }
-  .section [contenteditable]:focus-visible { outline: 1px dashed var(--ink-soft); outline-offset: 4px; }
-  .section[data-state="pending"] { border-left: 3px solid var(--rule); }
-  .section[data-state="pending"] [contenteditable]:empty:before {
-    content: attr(data-placeholder); color: var(--ink-soft); font-style: italic;
-  }
-  .section[data-state="detected"] { border-left: 3px dashed var(--ready); }
-  .section[data-state="detected"] [contenteditable]:empty:before {
-    content: attr(data-placeholder); color: var(--ready); font-style: italic;
-  }
-  .section[data-state="filled"] { border-left: 3px solid var(--ready); }
+  #registroOutput::placeholder { color: var(--ink-soft); font-style: italic; }
 
-  .review-note { padding: 0 18px 16px; font-size: 11.5px; color: var(--ink-soft); font-style: italic; }
+  .review-note { padding: 0 18px 16px; font-size: 13px; color: var(--ink-soft); font-style: italic; line-height: 1.5; }
 
-  .actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px 18px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 18px 20px; }
   .actions button {
-    font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500;
-    padding: 9px 14px; border-radius: 7px; border: 1px solid var(--ink);
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 500;
+    padding: 12px 18px; border-radius: 8px; border: 1px solid var(--ink); min-height: 44px;
     background: var(--ink); color: var(--paper); cursor: pointer; transition: opacity 150ms ease;
   }
   .actions button:hover { opacity: 0.85; }
@@ -244,7 +231,7 @@
   .actions button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
   .copied-flash {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ready);
+    font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500; color: var(--ready);
     align-self: center; opacity: 0; transition: opacity 200ms ease;
   }
   .copied-flash.visible { opacity: 1; }
@@ -255,6 +242,49 @@
 
   /* --- Páginas pessoais --- */
 
+  .patient-type-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; justify-content: center; }
+  .patient-type-btn {
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
+    padding: 9px 16px; border-radius: 20px; border: 1px solid var(--rule); min-height: 40px;
+    background: var(--panel); color: var(--ink-soft); cursor: pointer; transition: all 150ms ease;
+  }
+  .patient-type-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .patient-type-btn.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .patient-type-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .template-editor {
+    display: none; margin-top: 14px; width: 100%; max-width: 560px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius);
+    padding: 16px 18px; flex-direction: column; gap: 10px;
+  }
+  .template-editor.visible { display: flex; }
+  .template-editor-hint { font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin: 0; }
+  #templateEditorBox {
+    width: 100%; min-height: 220px; resize: vertical;
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.6;
+    border: 1px solid var(--rule); border-radius: 8px; padding: 12px; color: var(--ink); background: var(--paper);
+  }
+  .template-editor-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .template-editor-actions button {
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
+    padding: 10px 16px; border-radius: 7px; min-height: 44px; cursor: pointer;
+  }
+  #templateDoneBtn { border: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
+  #templateRestoreBtn { border: 1px solid var(--rule); background: transparent; color: var(--ink-soft); }
+  #templateRestoreBtn:hover { color: var(--record); border-color: var(--record); }
+
+  .more-options-link {
+    display: none;
+    margin-top: 14px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif; font-size: 13.5px;
+    color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
+    padding: 10px 8px; min-height: 44px;
+  }
+  .more-options-link.visible { display: inline-block; }
+  .more-options-link:hover { color: var(--ink); }
+  .more-options-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
   .personal-page-cta, .slug-banner {
     display: none; margin-top: 20px; max-width: 560px; width: 100%;
     background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius);
@@ -262,25 +292,26 @@
   }
   .personal-page-cta.visible, .slug-banner.visible { display: flex; }
 
-  .personal-page-cta span:first-child { font-size: 12.5px; color: var(--ink-soft); }
+  .personal-page-cta span:first-child { font-size: 14.5px; color: var(--ink-soft); line-height: 1.5; }
   .personal-page-row { display: flex; gap: 8px; }
   .personal-page-row input {
-    flex: 1; min-width: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-    border: 1px solid var(--rule); border-radius: 7px; padding: 8px 10px; color: var(--ink); background: var(--paper);
+    flex: 1; min-width: 0; font-family: 'Space Grotesk', sans-serif; font-size: 15px;
+    border: 1px solid var(--rule); border-radius: 7px; padding: 11px 12px; color: var(--ink); background: var(--paper);
+    min-height: 44px;
   }
   .personal-page-row button {
-    font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500;
-    padding: 8px 14px; border-radius: 7px; border: 1px solid var(--ink);
+    font-family: 'Space Grotesk', sans-serif; font-size: 14.5px; font-weight: 500;
+    padding: 11px 16px; border-radius: 7px; border: 1px solid var(--ink); min-height: 44px;
     background: var(--ink); color: var(--paper); cursor: pointer; white-space: nowrap;
   }
-  .personal-page-error { font-size: 11.5px; color: var(--record); min-height: 14px; }
+  .personal-page-error { font-size: 13px; color: var(--record); min-height: 16px; }
 
   .slug-banner { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-  .slug-banner span { font-size: 13px; }
+  .slug-banner span { font-size: 15px; }
   .slug-banner strong { font-family: 'IBM Plex Mono', monospace; }
   .slug-banner button {
-    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 500;
-    padding: 6px 12px; border-radius: 7px; border: 1px solid var(--ink);
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 500;
+    padding: 9px 14px; border-radius: 7px; border: 1px solid var(--ink); min-height: 44px;
     background: transparent; color: var(--ink); cursor: pointer;
   }
 
@@ -291,30 +322,24 @@
   .templates-card.visible { display: block; }
   #templatesBox {
     width: 100%; border: none; resize: vertical; outline: none;
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.6;
-    color: var(--ink); padding: 14px 18px; min-height: 100px; background: transparent;
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px; line-height: 1.65;
+    color: var(--ink); padding: 18px; min-height: 110px; background: transparent;
   }
   #templatesBox::placeholder { color: var(--ink-soft); font-style: italic; }
 
-  .qr-sync-status {
-    padding: 0 18px 10px; font-size: 12px; color: var(--ready); text-align: center; min-height: 16px;
+  .sync-toggle {
+    display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft);
+    cursor: pointer; white-space: nowrap;
   }
+  .sync-toggle input { width: 16px; height: 16px; accent-color: var(--ready); cursor: pointer; }
 
-  .sync-banner {
-    display: none; align-items: center; gap: 8px; margin-top: 12px;
-    background: var(--ready-dim); border: 1px solid var(--ready); border-radius: 8px;
-    padding: 8px 12px; font-size: 12px; color: var(--ready); max-width: 360px;
+  .sync-toast {
+    display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--paper); font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; padding: 12px 20px; border-radius: 30px; z-index: 60;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
   }
-  .sync-banner.visible { display: flex; }
-  .sync-banner .dot {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--ready); flex-shrink: 0;
-    animation: pulse 1.3s ease-in-out infinite;
-  }
-  .sync-banner span:nth-child(2) { flex: 1; }
-  .sync-banner button {
-    background: none; border: none; color: var(--ready); text-decoration: underline;
-    font-family: 'Space Grotesk', sans-serif; font-size: 11.5px; cursor: pointer; padding: 2px;
-  }
+  .sync-toast.visible { display: block; }
 </style>
 </head>
 <body>
@@ -322,6 +347,8 @@
   <div class="eyebrow">Consulta → Registro</div>
   <h1>Grave a consulta</h1>
   <p class="subtitle">Acompanhe a transcrição e o registro clínico sendo preenchidos em tempo real.</p>
+
+  <button id="moreOptionsBtn" class="more-options-link">Mais opções</button>
 
   <div class="personal-page-cta" id="personalPageCta">
     <span>Quer uma página pessoal fixa, com seus modelos salvos e sincronização automática com o celular?</span>
@@ -334,8 +361,14 @@
 
   <div class="slug-banner" id="slugBanner">
     <span>Sua página pessoal: <strong id="slugLabel"></strong></span>
+    <label class="sync-toggle">
+      <input type="checkbox" id="autoSyncToggle" checked>
+      Sincronizar automaticamente
+    </label>
     <button id="slugCopyBtn">Copiar link</button>
   </div>
+
+  <div class="sync-toast" id="syncToast"></div>
 
   <div class="recorder" id="recorder" data-state="idle">
     <div class="ring-wrap">
@@ -354,6 +387,23 @@
     <div class="status-line" id="statusLine">Toque para gravar</div>
   </div>
 
+  <div class="patient-type-row" id="patientTypeRow">
+    <button class="patient-type-btn active" data-type="adulto">Adulto</button>
+    <button class="patient-type-btn" data-type="crianca">Criança</button>
+    <button class="patient-type-btn" data-type="gestante">Gestante</button>
+  </div>
+
+  <button id="editTemplateBtn" class="more-options-link">Editar modelo</button>
+
+  <div class="template-editor" id="templateEditor">
+    <p class="template-editor-hint">Este texto é usado como base para preencher o registro. Marcadores como "xxxx" e campos em branco são substituídos pelo que for dito na consulta; o resto do texto é mantido como está, a menos que a consulta diga algo diferente.</p>
+    <textarea id="templateEditorBox"></textarea>
+    <div class="template-editor-actions">
+      <button id="templateRestoreBtn" class="secondary-small">Restaurar modelo padrão</button>
+      <button id="templateDoneBtn">Concluído</button>
+    </div>
+  </div>
+
   <button id="phoneMicBtn" class="phone-link">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
       <rect x="7" y="2" width="10" height="20" rx="2"/>
@@ -362,13 +412,6 @@
     Usar celular como microfone
   </button>
 
-  <div class="sync-banner" id="syncBanner">
-    <span class="dot"></span>
-    <span id="syncBannerText">Aguardando o celular...</span>
-    <button id="syncBannerCancelBtn">Cancelar</button>
-  </div>
-
-  <p class="privacy-note">Evite citar nome completo, CPF ou outros identificadores diretos durante a gravação. Em navegadores compatíveis, o áudio não sai do seu dispositivo — só o texto reconhecido localmente é enviado para organizar o registro.</p>
 
   <div class="error-box" id="errorBox">
     <div id="errorText"></div>
@@ -383,7 +426,6 @@
       </div>
       <p class="qr-instructions" id="qrInstructions">Aponte a câmera do celular para o código abaixo. Ele abre este mesmo site lá — toque no microfone normalmente para gravar.</p>
       <div class="qr-code-box" id="qrCodeBox"></div>
-      <p class="qr-sync-status" id="qrSyncStatus"></p>
       <p class="qr-link-fallback">Ou copie o link e abra manualmente:</p>
       <div class="qr-link-row">
         <input type="text" id="qrLinkInput" readonly>
@@ -391,14 +433,6 @@
       </div>
     </div>
   </div>
-  <div class="templates-card" id="templatesCard">
-    <div class="card-header">
-      <span>Meus modelos (receitas / posologias)</span>
-      <span class="badge" id="templatesBadge"><span class="dot"></span><span>Salvo</span></span>
-    </div>
-    <textarea id="templatesBox" placeholder="Guarde aqui modelos de receita, posologias e textos que você usa com frequência. Não inclua dados de pacientes aqui — diferente do resto do app, este bloco fica salvo permanentemente."></textarea>
-  </div>
-
   <div class="workspace">
     <div class="notepad-card">
       <div class="card-header">
@@ -415,33 +449,24 @@
         <span class="badge" id="panelBadge"><span class="dot"></span><span>Aguardando gravação</span></span>
       </div>
 
-      <div class="section" data-state="pending" id="secQueixaHda">
-        <label>Queixa principal / HDA</label>
-        <div contenteditable="true" id="fQueixaHda" data-placeholder="Ainda não mencionado"></div>
-      </div>
-      <div class="section" data-state="pending" id="secExameFisico">
-        <label>Exame físico</label>
-        <div contenteditable="true" id="fExameFisico" data-placeholder="Ainda não mencionado"></div>
-      </div>
-      <div class="section" data-state="pending" id="secHipoteseDiagnostica">
-        <label>Hipótese diagnóstica</label>
-        <div contenteditable="true" id="fHipoteseDiagnostica" data-placeholder="Ainda não mencionado"></div>
-      </div>
-      <div class="section" data-state="pending" id="secConduta">
-        <label>Conduta</label>
-        <div contenteditable="true" id="fConduta" data-placeholder="Ainda não mencionado"></div>
-      </div>
+      <textarea id="registroOutput" placeholder="O registro preenchido a partir do modelo escolhido aparece aqui quando a gravação terminar."></textarea>
 
       <p class="review-note">Conteúdo gerado por IA — revise antes de incluir no prontuário oficial.</p>
 
       <div class="actions">
         <button id="copyBtn">Copiar</button>
-        <button id="downloadTxtBtn" class="secondary">Baixar .txt</button>
-        <button id="downloadDocBtn" class="secondary">Baixar .doc</button>
         <button id="resetBtn" class="secondary">Nova consulta</button>
         <span class="copied-flash" id="copiedFlash">Copiado</span>
       </div>
     </div>
+  </div>
+
+  <div class="templates-card" id="templatesCard">
+    <div class="card-header">
+      <span>Meus modelos (receitas / posologias)</span>
+      <span class="badge" id="templatesBadge"><span class="dot"></span><span>Salvo</span></span>
+    </div>
+    <textarea id="templatesBox" placeholder="Guarde aqui modelos de receita, posologias e textos que você usa com frequência. Não inclua dados de pacientes aqui — diferente do resto do app, este bloco fica salvo permanentemente."></textarea>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -449,15 +474,64 @@
 (function () {
   const MIN_LIVE_TEXT_LENGTH = 15; // abaixo disso, não confiamos na transcrição ao vivo e caímos no áudio
 
-  // Detector de cobertura 100% local — sem chamar IA nenhuma durante a gravação.
-  // Só sinaliza "já foi mencionado", não gera texto. O texto de verdade só é
-  // redigido pela IA uma vez, quando a gravação termina.
-  const COVERAGE_PATTERNS = {
-    queixaHda: /\b(dor|febre|tosse|dispneia|falta de ar|n[áa]usea|v[óo]mit|diarreia|queixa|sintoma|mal[\s-]estar|fraqueza|cefal[ée]ia|h[áa]\s+\d+\s*(dia|hora|semana)|iniciou|come[çc]ou|sente|sentindo)\b/i,
-    exameFisico: /\b(PA|press[ãa]o arterial|FC|frequ[êe]ncia card[íi]aca|FR|frequ[êe]ncia respirat[óo]ria|temperatura|ausculta|abdom[ei]|palpa[çc][ãa]o|exame f[íi]sico|satura[çc][ãa]o|spo2|glasgow|sinais vitais|edema)\b/i,
-    hipoteseDiagnostica: /\b(hip[óo]tese|suspeita|diagn[óo]stico|prov[áa]vel|compat[íi]vel com|impress[ãa]o cl[íi]nica|cid)\b/i,
-    conduta: /\b(prescrev|prescri[çc][ãa]o|solicit|encaminh|alta|retorno|medica[çc][ãa]o|medicamento|dose|internar|interna[çc][ãa]o|observa[çc][ãa]o|conduta|orient)\b/i
+  // Modelos padrão por tipo de paciente. O usuário pode editar cada um (fica
+  // salvo no localStorage do navegador, por dispositivo). A IA preenche o
+  // modelo escolhido com base na transcrição, mantendo o texto-padrão onde
+  // a consulta não disser nada diferente.
+  const DEFAULT_TEMPLATES = {
+    adulto: `Paciente adulto, apresenta quadro de xxxx há xxxx. Nega outros sintomas associados. Comorbidades: ausentes. Alergias: ausentes. Medicações em uso: ausentes.
+Ao exame:
+BEG, corado, hidratado, afebril, eupneico, LOTE
+AR: MV + em AHT S/ RA. Sem sinais de desconforto respiratório.
+ACV: RCR em 2T com BNF, s/ sopros
+ABD: indolor à palpação, s/ sinais de irritação peritoneal
+Hipótese diagnóstica:
+Conduta:
+Orientações
+Receita
+Alta`,
+    crianca: `Menor, acompanhado de genitora, apresenta quadro de xxxx há 3 dias. Nega outros sintomas. Comorbidades: ausentes. Alergias: ausentes. Medicações em uso: ausentes. 
+Ao exame  (após consentimento do responsável):
+Peso: 
+Menor em BEG, corado, hidratado, afebril, ativo e reativo
+OTO: s/ alterações em conduto auditivo e timpano, bilateralmente
+OROF: s/ alterações
+AR: MV + em AHT S/ RA. Sem sinais de desconforto respiratório, eupneico.
+ACV: RCR em 2T com BNF, s/ extrassístoles
+ABD: indolor a palpação e s/ vmg. S/ sinais de peritonite
+Hipótese diagnóstica:
+Conduta:
+Orientações
+Receita
+Alta`,
+    gestante: `GPA     IG (DUM)     IG (US 1° TRI)     TS: ???? POSITIVO     COMORBIDADES: NEGA
+Paciente vem com queixa. Nega perda de LA, sangramentos, febre, disúria e outros sintomas. Movimentos fetais presentes. Nega alergias medicamentosas e uso de drogas. Eliminações fisiológicas preservadas.
+Ao exame (após consentimento da paciente):
+BEG, corada, hidratada, afebril, eupneica, LOTE
+ABD: Gravídico, indolor a palpação
+BCF: xxx sem desacelerações ao sonar
+DU ausente
+TV FECHADO, GROSSO E POSTERIOR
+Hipótese diagnóstica:
+Conduta:
+Orientações
+Receita
+Alta`
   };
+
+  function getTemplateForType(type) {
+    try {
+      const stored = window.localStorage.getItem('tmpl_' + type);
+      if (stored !== null) return stored;
+    } catch (e) {}
+    return DEFAULT_TEMPLATES[type] || DEFAULT_TEMPLATES.adulto;
+  }
+
+  function saveTemplateForType(type, text) {
+    try { window.localStorage.setItem('tmpl_' + type, text); } catch (e) {}
+  }
+
+  let currentPatientType = 'adulto';
 
   const recorder = document.getElementById('recorder');
   const recordBtn = document.getElementById('recordBtn');
@@ -471,19 +545,7 @@
   const notepadBadge = document.getElementById('notepadBadge');
   const notepadHint = document.getElementById('notepadHint');
   const copiedFlash = document.getElementById('copiedFlash');
-
-  const sections = {
-    queixaHda: document.getElementById('secQueixaHda'),
-    exameFisico: document.getElementById('secExameFisico'),
-    hipoteseDiagnostica: document.getElementById('secHipoteseDiagnostica'),
-    conduta: document.getElementById('secConduta')
-  };
-  const fields = {
-    queixaHda: document.getElementById('fQueixaHda'),
-    exameFisico: document.getElementById('fExameFisico'),
-    hipoteseDiagnostica: document.getElementById('fHipoteseDiagnostica'),
-    conduta: document.getElementById('fConduta')
-  };
+  const registroOutput = document.getElementById('registroOutput');
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -495,7 +557,52 @@
   let preRecordingText = '';   // o que já estava no bloco de notas antes de apertar gravar
   let programmaticUpdate = false;
   let notepadEditedByUser = false;
-  let fieldEditedByUser = { queixaHda: false, exameFisico: false, hipoteseDiagnostica: false, conduta: false };
+  let registroProgrammaticUpdate = false;
+  let registroEditedByUser = false;
+
+  // ---------- Seletor de tipo de paciente + editor de modelo ----------
+
+  document.querySelectorAll('.patient-type-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.patient-type-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPatientType = btn.dataset.type;
+      if (document.getElementById('templateEditor').classList.contains('visible')) {
+        document.getElementById('templateEditorBox').value = getTemplateForType(currentPatientType);
+      }
+    });
+  });
+
+  const editTemplateBtn = document.getElementById('editTemplateBtn');
+  const templateEditor = document.getElementById('templateEditor');
+  const templateEditorBox = document.getElementById('templateEditorBox');
+  let templateSaveTimer = null;
+
+  editTemplateBtn.addEventListener('click', () => {
+    const opening = !templateEditor.classList.contains('visible');
+    templateEditor.classList.toggle('visible');
+    editTemplateBtn.textContent = templateEditor.classList.contains('visible') ? 'Fechar modelo' : 'Editar modelo';
+    if (opening) templateEditorBox.value = getTemplateForType(currentPatientType);
+  });
+
+  templateEditorBox.addEventListener('input', () => {
+    clearTimeout(templateSaveTimer);
+    templateSaveTimer = setTimeout(() => {
+      saveTemplateForType(currentPatientType, templateEditorBox.value);
+    }, 800);
+  });
+
+  document.getElementById('templateRestoreBtn').addEventListener('click', () => {
+    if (!window.confirm('Isso substitui suas edições pelo modelo padrão deste tipo de paciente. Continuar?')) return;
+    const defaultText = DEFAULT_TEMPLATES[currentPatientType] || '';
+    templateEditorBox.value = defaultText;
+    saveTemplateForType(currentPatientType, defaultText);
+  });
+
+  document.getElementById('templateDoneBtn').addEventListener('click', () => {
+    templateEditor.classList.remove('visible');
+    editTemplateBtn.textContent = 'Editar modelo';
+  });
 
   // ---------- Páginas pessoais (rota dinâmica tipo /seu-nome) ----------
   // Sem login: quem sabe a URL lê/escreve. Por isso o slug deve ser tratado
@@ -519,16 +626,19 @@
     slugBanner.classList.add('visible');
     document.getElementById('slugLabel').textContent = '/' + currentSlug;
     templatesCard.classList.add('visible');
-    // Ping best-effort: ajuda o outro aparelho a saber que "alguém chegou" nesta
-    // página, e serve de teste rápido de que o KV está configurado.
-    fetch('/api/relay', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: currentSlug, status: 'connected' })
-    }).catch(() => {});
+    startAutoSync();
   } else {
-    personalPageCta.classList.add('visible');
+    document.getElementById('moreOptionsBtn').classList.add('visible');
   }
+
+  document.getElementById('autoSyncToggle')?.addEventListener('change', (e) => {
+    if (e.target.checked) startAutoSync(); else stopAutoSync();
+  });
+
+  document.getElementById('moreOptionsBtn')?.addEventListener('click', (e) => {
+    personalPageCta.classList.toggle('visible');
+    e.target.textContent = personalPageCta.classList.contains('visible') ? 'Menos opções' : 'Mais opções';
+  });
 
   document.getElementById('slugCopyBtn')?.addEventListener('click', async () => {
     try {
@@ -607,53 +717,28 @@
       notepadEditedByUser = true;
       if (recorder.dataset.state === 'recording') notepadHint.classList.add('visible');
     }
-    updateCoverage(notepad.value);
   });
 
   function setNotepadValue(text) {
     programmaticUpdate = true;
     notepad.value = text;
-    updateCoverage(text);
   }
 
-  function updateCoverage(text) {
-    Object.keys(COVERAGE_PATTERNS).forEach((key) => {
-      if (fieldEditedByUser[key] || sections[key].dataset.state === 'filled') return;
-      const detected = COVERAGE_PATTERNS[key].test(text);
-      sections[key].dataset.state = detected ? 'detected' : 'pending';
-      fields[key].dataset.placeholder = detected
-        ? 'Mencionado — texto final ao parar a gravação'
-        : 'Ainda não mencionado';
-    });
-  }
+  // ---------- Registro clínico (texto único, gerado a partir do modelo) ----------
 
-  function resetCoverage() {
-    Object.keys(sections).forEach((key) => {
-      sections[key].dataset.state = 'pending';
-      fields[key].dataset.placeholder = 'Ainda não mencionado';
-    });
-  }
-
-  // ---------- SOAP fields (edição manual pausa auto-preenchimento daquele campo) ----------
-
-  Object.keys(fields).forEach((key) => {
-    fields[key].addEventListener('input', () => {
-      fieldEditedByUser[key] = true;
-    });
+  registroOutput.addEventListener('input', () => {
+    if (registroProgrammaticUpdate) registroProgrammaticUpdate = false;
+    else registroEditedByUser = true;
   });
 
-  function applySoapFields(soap, { isFinal }) {
-    if (!soap) return;
-    Object.keys(fields).forEach((key) => {
-      const value = soap[key];
-      if (fieldEditedByUser[key]) return; // respeita o que o médico já corrigiu
-      if (value && String(value).trim()) {
-        fields[key].textContent = String(value).trim();
-        sections[key].dataset.state = 'filled';
-      } else if (isFinal) {
-        sections[key].dataset.state = 'pending';
-      }
-    });
+  function setRegistroValue(text) {
+    registroProgrammaticUpdate = true;
+    registroOutput.value = text;
+  }
+
+  function applyRegistro(text) {
+    if (registroEditedByUser) return; // respeita o que o médico já editou
+    setRegistroValue(text || '');
   }
 
   // ---------- Gravação ----------
@@ -684,8 +769,7 @@
     preRecordingText = notepad.value.trim();
     notepadEditedByUser = false;
     notepadHint.classList.remove('visible');
-    Object.keys(fieldEditedByUser).forEach(k => fieldEditedByUser[k] = false);
-    resetCoverage();
+    registroEditedByUser = false;
 
     const mimeType = pickMimeType();
     chunks = [];
@@ -823,12 +907,12 @@
       const res = await fetch('/api/structure', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text, template: getTemplateForType(currentPatientType) })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erro ao organizar o registro.');
 
-      finishWithResult(data.soap, data.soap_raw);
+      finishWithResult(data.registro);
     } catch (err) {
       // Rede de segurança: se o caminho de texto falhar, tenta o de áudio antes de desistir.
       if (lastBlob && lastBlob.size > 0) {
@@ -853,6 +937,7 @@
     const form = new FormData();
     const ext = blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
     form.append('audio', blob, `gravacao.${ext}`);
+    form.append('template', getTemplateForType(currentPatientType));
 
     try {
       const res = await fetch('/api/process', { method: 'POST', body: form });
@@ -865,7 +950,7 @@
         setNotepadValue(base + data.transcript.trim());
       }
 
-      finishWithResult(data.soap, data.soap_raw);
+      finishWithResult(data.registro);
     } catch (err) {
       setState('idle');
       setStatus('Toque para gravar');
@@ -875,76 +960,80 @@
     }
   }
 
-  function finishWithResult(soap, soapRaw) {
-    applySoapFields(soap, { isFinal: true });
-    if (!soap) {
-      // resposta não veio estruturada — preserva a informação no campo Conduta, se ele não foi editado
-      if (!fieldEditedByUser.conduta) {
-        fields.conduta.textContent = soapRaw || 'Não foi possível estruturar a resposta automaticamente.';
-        sections.conduta.dataset.state = 'filled';
-      }
-    }
+  function finishWithResult(registroText, options) {
+    const opts = options || {};
+    applyRegistro(registroText || 'Não foi possível gerar o registro automaticamente. Preencha manualmente.');
     setState('idle');
     setStatus('Toque para gravar');
     setBadge(notepadBadge, 'done', 'Revisado');
-    setBadge(panelBadge, 'done', 'Registro revisado — confira antes de usar');
+    setBadge(panelBadge, 'done', opts.fromSync ? 'Registro atualizado a partir de outro aparelho' : 'Registro revisado — confira antes de usar');
 
-    if (currentSlug) {
-      // Best-effort: se este dispositivo está numa página pessoal, publica o
-      // resultado pro outro dispositivo (ex.: o computador) que esteja esperando.
-      // Mostra no badge se isso falhar, em vez de esconder o erro.
+    if (currentSlug && !opts.fromSync) {
+      // Best-effort: publica o resultado pra qualquer outro aparelho que esteja
+      // com a sincronização automática ligada nesta mesma página pessoal.
       fetch('/api/relay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug: currentSlug, status: 'done', soap, soap_raw: soapRaw, transcript: notepad.value })
+        body: JSON.stringify({ slug: currentSlug, registro: registroText, transcript: notepad.value })
       }).then((res) => {
         if (res.ok) {
-          setBadge(panelBadge, 'done', 'Registro revisado — enviado ao computador');
+          setBadge(panelBadge, 'done', 'Registro revisado — sincronizado');
         } else {
-          setBadge(panelBadge, '', 'Registro revisado — falha ao enviar ao computador (copie manualmente)');
+          setBadge(panelBadge, '', 'Registro revisado — falha ao sincronizar (copie manualmente)');
         }
       }).catch(() => {
-        setBadge(panelBadge, '', 'Registro revisado — sem conexão pra enviar ao computador (copie manualmente)');
+        setBadge(panelBadge, '', 'Registro revisado — sem conexão pra sincronizar (copie manualmente)');
       });
     }
+  }
+
+  // ---------- Sincronização automática (sem "conectar" — qualquer registro novo nesta página pessoal aparece sozinho) ----------
+
+  const AUTO_SYNC_POLL_MS = 6000;
+  let autoSyncTimer = null;
+
+  function startAutoSync() {
+    if (!currentSlug || autoSyncTimer) return;
+    autoSyncTimer = setInterval(async () => {
+      // Só busca quando o aparelho está ocioso — evita interromper uma gravação
+      // em andamento e evita "consumir" um resultado sem aplicá-lo.
+      if (recorder.dataset.state !== 'idle') return;
+      try {
+        const res = await fetch('/api/relay?slug=' + encodeURIComponent(currentSlug));
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.status === 'pending' && (data.registro || data.transcript)) {
+          if (!notepadEditedByUser && data.transcript) {
+            const base = notepad.value.trim() ? notepad.value.trim() + '\n' : '';
+            setNotepadValue(base + data.transcript.trim());
+          }
+          finishWithResult(data.registro, { fromSync: true });
+          showSyncToast('Registro atualizado a partir de outro aparelho');
+        }
+      } catch (e) {
+        // erro de rede pontual — tenta de novo no próximo ciclo
+      }
+    }, AUTO_SYNC_POLL_MS);
+  }
+
+  function stopAutoSync() {
+    clearInterval(autoSyncTimer);
+    autoSyncTimer = null;
+  }
+
+  const syncToast = document.getElementById('syncToast');
+  let syncToastTimer = null;
+  function showSyncToast(text) {
+    syncToast.textContent = text;
+    syncToast.classList.add('visible');
+    clearTimeout(syncToastTimer);
+    syncToastTimer = setTimeout(() => syncToast.classList.remove('visible'), 3500);
   }
 
   // ---------- Exportação ----------
 
   function buildPlainText() {
-    return [
-      'REGISTRO CLÍNICO',
-      new Date().toLocaleString('pt-BR'),
-      '',
-      'QUEIXA PRINCIPAL / HDA', fields.queixaHda.textContent.trim(),
-      '',
-      'EXAME FÍSICO', fields.exameFisico.textContent.trim(),
-      '',
-      'HIPÓTESE DIAGNÓSTICA', fields.hipoteseDiagnostica.textContent.trim(),
-      '',
-      'CONDUTA', fields.conduta.textContent.trim()
-    ].join('\n');
-  }
-
-  function buildHtmlDoc() {
-    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Calibri, sans-serif; font-size:12pt;">
-      <h2>Registro Clínico</h2>
-      <p><em>${esc(new Date().toLocaleString('pt-BR'))}</em></p>
-      <h3>Queixa principal / HDA</h3><p>${esc(fields.queixaHda.textContent.trim())}</p>
-      <h3>Exame físico</h3><p>${esc(fields.exameFisico.textContent.trim())}</p>
-      <h3>Hipótese diagnóstica</h3><p>${esc(fields.hipoteseDiagnostica.textContent.trim())}</p>
-      <h3>Conduta</h3><p>${esc(fields.conduta.textContent.trim())}</p>
-      </body></html>`;
-  }
-
-  function downloadBlob(content, type, filename) {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
+    return registroOutput.value;
   }
 
   // ---------- Eventos ----------
@@ -971,23 +1060,17 @@
     }
   });
 
-  document.getElementById('downloadTxtBtn').addEventListener('click', () => {
-    downloadBlob(buildPlainText(), 'text/plain;charset=utf-8', `registro-soap-${Date.now()}.txt`);
-  });
-  document.getElementById('downloadDocBtn').addEventListener('click', () => {
-    downloadBlob(buildHtmlDoc(), 'application/msword;charset=utf-8', `registro-soap-${Date.now()}.doc`);
-  });
-
   document.getElementById('resetBtn').addEventListener('click', () => {
+    const hasContent = notepad.value.trim().length > 0 || registroOutput.value.trim().length > 0;
+    if (hasContent && !window.confirm('Isso vai apagar o registro atual desta consulta. Continuar?')) {
+      return;
+    }
     setNotepadValue('');
     committedText = '';
     notepadEditedByUser = false;
     notepadHint.classList.remove('visible');
-    Object.keys(fields).forEach((key) => {
-      fields[key].textContent = '';
-      fieldEditedByUser[key] = false;
-    });
-    resetCoverage();
+    setRegistroValue('');
+    registroEditedByUser = false;
     lastBlob = null;
     hideError();
     setStatus('Toque para gravar');
@@ -1008,16 +1091,7 @@
   const qrLinkInput = document.getElementById('qrLinkInput');
   const qrCopyLinkBtn = document.getElementById('qrCopyLinkBtn');
   const qrInstructions = document.getElementById('qrInstructions');
-  const qrSyncStatus = document.getElementById('qrSyncStatus');
-  const syncBanner = document.getElementById('syncBanner');
-  const syncBannerText = document.getElementById('syncBannerText');
-  const syncBannerCancelBtn = document.getElementById('syncBannerCancelBtn');
   let qrRendered = false;
-  let relayPollTimer = null;
-  let relayTimeoutTimer = null;
-
-  const RELAY_POLL_MS = 4000;
-  const RELAY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutos — bate com a expiração do relay no servidor
 
   function siteUrl() {
     return window.location.origin + window.location.pathname;
@@ -1042,80 +1116,15 @@
     }
 
     if (currentSlug) {
-      qrInstructions.textContent = 'Aponte a câmera para o código. Como esta é sua página pessoal, o registro gravado no celular aparece sozinho aqui quando ele terminar — pode fechar esta janela, a sincronização continua rodando.';
-      startRelayPolling();
+      qrInstructions.textContent = 'Aponte a câmera para o código. Como esta é sua página pessoal, o que for gravado no celular aparece sozinho nesta tela (e em qualquer outra aberta na mesma página) — sem precisar deixar nada aberto aqui.';
     } else {
       qrInstructions.textContent = 'Aponte a câmera do celular para o código abaixo. Ele abre este mesmo site lá — toque no microfone normalmente para gravar.';
-      qrSyncStatus.textContent = '';
     }
 
     qrOverlay.classList.add('visible');
   }
 
-  // Fechar o modal NÃO interrompe a sincronização — ela continua em segundo
-  // plano (banner abaixo do botão) até terminar, dar timeout, ou ser cancelada.
   function closeQrModal() { qrOverlay.classList.remove('visible'); }
-
-  function startRelayPolling() {
-    stopRelayPolling();
-    qrSyncStatus.textContent = 'Aguardando o celular terminar a gravação...';
-    setSyncBanner('Aguardando registro do celular em /' + currentSlug + '...');
-
-    relayTimeoutTimer = setTimeout(() => {
-      stopRelayPolling();
-      setSyncBanner('Tempo esgotado esperando o celular. Abra "Usar celular" de novo pra tentar outra vez.', true);
-    }, RELAY_TIMEOUT_MS);
-
-    relayPollTimer = setInterval(async () => {
-      try {
-        const res = await fetch('/api/relay?slug=' + encodeURIComponent(currentSlug));
-        if (!res.ok) {
-          setSyncBanner('Não consegui checar o celular agora (erro do servidor). Tentando de novo...', true);
-          return;
-        }
-        const data = await res.json();
-        if (data.status === 'connected') {
-          const msg = 'Celular conectado — aguardando a gravação terminar...';
-          qrSyncStatus.textContent = msg;
-          setSyncBanner(msg);
-        } else if (data.status === 'done') {
-          qrSyncStatus.textContent = 'Registro recebido do celular.';
-          if (!notepadEditedByUser && data.transcript) {
-            const base = preRecordingText ? preRecordingText + '\n' : '';
-            setNotepadValue(base + data.transcript.trim());
-          }
-          finishWithResult(data.soap, data.soap_raw);
-          stopRelayPolling();
-          hideSyncBanner();
-          if (qrOverlay.classList.contains('visible')) setTimeout(closeQrModal, 1200);
-        }
-      } catch (e) {
-        // erro de rede pontual — tenta de novo no próximo ciclo, sem interromper
-      }
-    }, RELAY_POLL_MS);
-  }
-
-  function stopRelayPolling() {
-    clearInterval(relayPollTimer);
-    clearTimeout(relayTimeoutTimer);
-    relayPollTimer = null;
-    relayTimeoutTimer = null;
-  }
-
-  function setSyncBanner(text, isWarning) {
-    syncBannerText.textContent = text;
-    syncBanner.classList.add('visible');
-    syncBanner.style.color = isWarning ? 'var(--record)' : 'var(--ready)';
-    syncBanner.style.borderColor = isWarning ? 'var(--record)' : 'var(--ready)';
-    syncBanner.style.background = isWarning ? 'var(--record-dim)' : 'var(--ready-dim)';
-  }
-
-  function hideSyncBanner() { syncBanner.classList.remove('visible'); }
-
-  syncBannerCancelBtn.addEventListener('click', () => {
-    stopRelayPolling();
-    hideSyncBanner();
-  });
 
   phoneMicBtn.addEventListener('click', openQrModal);
   qrCloseBtn.addEventListener('click', closeQrModal);

@@ -1,32 +1,31 @@
 // functions/api/structure.js
 //
 // Caminho padrão e barato do app. Recebe só o TEXTO já transcrito pelo
-// reconhecimento de voz do navegador (gratuito, local) e pede pra IA
-// organizar nos 4 campos do registro clínico. Nenhum áudio passa por aqui —
+// reconhecimento de voz do navegador (gratuito, local) e o MODELO escolhido
+// pelo médico (Adulto/Criança/Gestante, editável no app) e pede pra IA
+// preencher o modelo com base na transcrição. Nenhum áudio passa por aqui —
 // é por isso que esse caminho é o mais barato e o mais privado.
 //
 // Usa um modelo bem menor que o do /api/process (que só entra como reserva,
 // quando o navegador não suporta reconhecimento de voz). Para uma tarefa de
-// extrair e reorganizar informação que já está no texto, um modelo pequeno
-// tende a ser suficiente — vale validar a qualidade com transcrições reais
-// antes de confiar de olhos fechados.
+// preencher um texto-padrão com informação que já está na transcrição, um
+// modelo pequeno tende a ser suficiente — vale validar a qualidade com
+// transcrições reais antes de confiar de olhos fechados.
 
 const CHAT_MODEL = 'llama-3.1-8b-instant';
 
-const SYSTEM_PROMPT = `Você é um assistente de documentação médica de pronto-socorro/emergência. Você recebe a transcrição de um atendimento (fala natural, podendo ter trechos truncados ou ambíguos) e deve organizá-la em um registro clínico objetivo, em português, no padrão usado em emergência.
+const SYSTEM_PROMPT = `Você é um assistente de documentação médica de pronto-socorro/emergência. Você recebe um MODELO de registro clínico (texto-padrão com estrutura fixa, frases de achados normais já escritas, e marcadores de preenchimento como "xxxx", "????", campos em branco ou rótulos seguidos de dois-pontos) e a TRANSCRIÇÃO de um atendimento real.
+
+Sua tarefa: preencher o modelo com as informações da transcrição, devolvendo o texto completo do modelo já preenchido.
 
 Regras obrigatórias:
-- Use apenas informações presentes na transcrição. Nunca invente sintomas, achados, diagnósticos ou condutas que não foram mencionados.
-- Se uma seção não tiver informação suficiente na transcrição, escreva exatamente: "Não relatado nesta consulta."
-- Seja conciso e objetivo, como um médico escreveria em prontuário de emergência — frases curtas, sem floreios. A queixa principal/HDA deve ser especialmente enxuta.
-- Responda APENAS com um objeto JSON válido, sem nenhum texto antes ou depois, no formato exato:
-{"queixaHda": "...", "exameFisico": "...", "hipoteseDiagnostica": "...", "conduta": "..."}
-
-Onde:
-- queixaHda: queixa principal e história da doença atual (sintomas, início, evolução, fatores associados).
-- exameFisico: achados de exame físico, sinais vitais, resultados de exames mencionados.
-- hipoteseDiagnostica: hipóteses diagnósticas, impressão clínica.
-- conduta: conduta tomada, prescrições, exames solicitados, orientações, encaminhamento ou alta.`;
+- Mantenha a estrutura, a ordem das seções e a redação padrão do modelo o máximo possível.
+- Substitua marcadores de preenchimento (xxxx, ????, campos em branco, valores genéricos) pelas informações reais ditas na transcrição.
+- Frases de achados normais já escritas no modelo (ex.: "Sem sinais de desconforto respiratório", "RCR em 2T com BNF") devem ser MANTIDAS exatamente como estão, a menos que a transcrição diga explicitamente algo diferente — nesse caso, substitua pela informação real relatada.
+- Nunca invente informações que não estejam na transcrição nem façam parte do texto padrão do modelo.
+- Se uma informação pedida pelo modelo (ex.: peso, idade gestacional, hipótese diagnóstica, conduta) não foi mencionada na transcrição, deixe o campo correspondente em branco — não invente um valor.
+- Preserve as quebras de linha do modelo.
+- Responda APENAS com o texto final preenchido. Não inclua comentários, explicações, aspas ao redor do texto, ou qualquer marcação adicional (sem JSON, sem markdown).`;
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -43,7 +42,9 @@ export async function onRequestPost(context) {
   }
 
   const text = (body.text || '').trim();
+  const template = (body.template || '').trim();
   if (!text) return jsonResponse({ error: 'Texto vazio.' }, 400);
+  if (!template) return jsonResponse({ error: 'Modelo vazio.' }, 400);
 
   try {
     const chatRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -55,10 +56,9 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         model: CHAT_MODEL,
         temperature: 0.2,
-        response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: text }
+          { role: 'user', content: `MODELO:\n${template}\n\nTRANSCRIÇÃO:\n${text}` }
         ]
       })
     });
@@ -69,15 +69,9 @@ export async function onRequestPost(context) {
     }
 
     const data = await chatRes.json();
-    const soapRaw = data.choices?.[0]?.message?.content || '';
-    let soap = null;
-    try {
-      soap = JSON.parse(soapRaw);
-    } catch (e) {
-      soap = null;
-    }
+    const registro = (data.choices?.[0]?.message?.content || '').trim();
 
-    return jsonResponse({ soap, soap_raw: soapRaw }, 200);
+    return jsonResponse({ registro }, 200);
   } catch (err) {
     return jsonResponse({ error: 'Erro de rede ao organizar o registro.', details: String(err) }, 502);
   }
