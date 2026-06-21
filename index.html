@@ -95,6 +95,60 @@
 
   .privacy-note { margin-top: 18px; font-size: 12px; color: var(--ink-soft); text-align: center; max-width: 360px; font-style: italic; }
 
+  .phone-link {
+    margin-top: 16px;
+    display: flex; align-items: center; gap: 7px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px;
+    color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px;
+    padding: 4px;
+  }
+  .phone-link:hover { color: var(--ink); }
+  .phone-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  .qr-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(28,28,30,0.55);
+    align-items: center; justify-content: center; padding: 20px; z-index: 50;
+  }
+  .qr-overlay.visible { display: flex; }
+
+  .qr-modal {
+    background: var(--panel); border-radius: var(--radius); max-width: 340px; width: 100%;
+    overflow: hidden;
+  }
+  .qr-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--rule);
+  }
+  .qr-header span {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--ink-soft);
+  }
+  .qr-header button {
+    background: none; border: none; cursor: pointer; color: var(--ink-soft); font-size: 16px; line-height: 1;
+  }
+  .qr-header button:hover { color: var(--ink); }
+
+  .qr-instructions { padding: 14px 18px 4px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+  .qr-code-box {
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px; min-height: 200px;
+  }
+  .qr-code-box img, .qr-code-box canvas { border-radius: 6px; }
+
+  .qr-link-fallback { padding: 0 18px; font-size: 11.5px; color: var(--ink-soft); font-style: italic; }
+  .qr-link-row { display: flex; gap: 8px; padding: 8px 18px 18px; }
+  .qr-link-row input {
+    flex: 1; min-width: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    border: 1px solid var(--rule); border-radius: 6px; padding: 7px 9px; color: var(--ink-soft); background: var(--paper);
+  }
+  .qr-link-row button {
+    font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500;
+    padding: 7px 12px; border-radius: 6px; border: 1px solid var(--ink);
+    background: var(--ink); color: var(--paper); cursor: pointer;
+  }
+
   .error-box {
     display: none; margin-top: 20px; max-width: 560px; width: 100%;
     background: #FBEAE6; border: 1px solid var(--record); color: #7A3422;
@@ -198,6 +252,53 @@
   @media (prefers-reduced-motion: reduce) {
     .ring, #recordBtn, .spinner, .badge .dot { transition: none; animation: none; }
   }
+
+  /* --- Páginas pessoais --- */
+
+  .personal-page-cta, .slug-banner {
+    display: none; margin-top: 20px; max-width: 560px; width: 100%;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius);
+    padding: 14px 18px; flex-direction: column; gap: 10px;
+  }
+  .personal-page-cta.visible, .slug-banner.visible { display: flex; }
+
+  .personal-page-cta span:first-child { font-size: 12.5px; color: var(--ink-soft); }
+  .personal-page-row { display: flex; gap: 8px; }
+  .personal-page-row input {
+    flex: 1; min-width: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    border: 1px solid var(--rule); border-radius: 7px; padding: 8px 10px; color: var(--ink); background: var(--paper);
+  }
+  .personal-page-row button {
+    font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500;
+    padding: 8px 14px; border-radius: 7px; border: 1px solid var(--ink);
+    background: var(--ink); color: var(--paper); cursor: pointer; white-space: nowrap;
+  }
+  .personal-page-error { font-size: 11.5px; color: var(--record); min-height: 14px; }
+
+  .slug-banner { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .slug-banner span { font-size: 13px; }
+  .slug-banner strong { font-family: 'IBM Plex Mono', monospace; }
+  .slug-banner button {
+    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 500;
+    padding: 6px 12px; border-radius: 7px; border: 1px solid var(--ink);
+    background: transparent; color: var(--ink); cursor: pointer;
+  }
+
+  .templates-card {
+    display: none; margin-top: 20px; width: 100%; max-width: 1000px;
+    background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden;
+  }
+  .templates-card.visible { display: block; }
+  #templatesBox {
+    width: 100%; border: none; resize: vertical; outline: none;
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.6;
+    color: var(--ink); padding: 14px 18px; min-height: 100px; background: transparent;
+  }
+  #templatesBox::placeholder { color: var(--ink-soft); font-style: italic; }
+
+  .qr-sync-status {
+    padding: 0 18px 10px; font-size: 12px; color: var(--ready); text-align: center; min-height: 16px;
+  }
 </style>
 </head>
 <body>
@@ -205,6 +306,20 @@
   <div class="eyebrow">Consulta → Registro</div>
   <h1>Grave a consulta</h1>
   <p class="subtitle">Acompanhe a transcrição e o registro clínico sendo preenchidos em tempo real.</p>
+
+  <div class="personal-page-cta" id="personalPageCta">
+    <span>Quer uma página pessoal fixa, com seus modelos salvos e sincronização automática com o celular?</span>
+    <div class="personal-page-row">
+      <input type="text" id="personalSlugInput" placeholder="seu-nome-ou-apelido" maxlength="40">
+      <button id="personalSlugGoBtn">Criar / acessar</button>
+    </div>
+    <span class="personal-page-error" id="personalSlugError"></span>
+  </div>
+
+  <div class="slug-banner" id="slugBanner">
+    <span>Sua página pessoal: <strong id="slugLabel"></strong></span>
+    <button id="slugCopyBtn">Copiar link</button>
+  </div>
 
   <div class="recorder" id="recorder" data-state="idle">
     <div class="ring-wrap">
@@ -223,11 +338,43 @@
     <div class="status-line" id="statusLine">Toque para gravar</div>
   </div>
 
+  <button id="phoneMicBtn" class="phone-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+      <rect x="7" y="2" width="10" height="20" rx="2"/>
+      <line x1="11" y1="18" x2="13" y2="18"/>
+    </svg>
+    Usar celular como microfone
+  </button>
+
   <p class="privacy-note">Evite citar nome completo, CPF ou outros identificadores diretos durante a gravação. Em navegadores compatíveis, o áudio não sai do seu dispositivo — só o texto reconhecido localmente é enviado para organizar o registro.</p>
 
   <div class="error-box" id="errorBox">
     <div id="errorText"></div>
     <button id="retryBtn">Tentar novamente</button>
+  </div>
+
+  <div class="qr-overlay" id="qrOverlay">
+    <div class="qr-modal">
+      <div class="qr-header">
+        <span>Gravar pelo celular</span>
+        <button id="qrCloseBtn" aria-label="Fechar">✕</button>
+      </div>
+      <p class="qr-instructions" id="qrInstructions">Aponte a câmera do celular para o código abaixo. Ele abre este mesmo site lá — toque no microfone normalmente para gravar.</p>
+      <div class="qr-code-box" id="qrCodeBox"></div>
+      <p class="qr-sync-status" id="qrSyncStatus"></p>
+      <p class="qr-link-fallback">Ou copie o link e abra manualmente:</p>
+      <div class="qr-link-row">
+        <input type="text" id="qrLinkInput" readonly>
+        <button id="qrCopyLinkBtn">Copiar</button>
+      </div>
+    </div>
+  </div>
+  <div class="templates-card" id="templatesCard">
+    <div class="card-header">
+      <span>Meus modelos (receitas / posologias)</span>
+      <span class="badge" id="templatesBadge"><span class="dot"></span><span>Salvo</span></span>
+    </div>
+    <textarea id="templatesBox" placeholder="Guarde aqui modelos de receita, posologias e textos que você usa com frequência. Não inclua dados de pacientes aqui — diferente do resto do app, este bloco fica salvo permanentemente."></textarea>
   </div>
 
   <div class="workspace">
@@ -275,6 +422,7 @@
     </div>
   </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 (function () {
   const MIN_LIVE_TEXT_LENGTH = 15; // abaixo disso, não confiamos na transcrição ao vivo e caímos no áudio
@@ -326,6 +474,91 @@
   let programmaticUpdate = false;
   let notepadEditedByUser = false;
   let fieldEditedByUser = { queixaHda: false, exameFisico: false, hipoteseDiagnostica: false, conduta: false };
+
+  // ---------- Páginas pessoais (rota dinâmica tipo /seu-nome) ----------
+  // Sem login: quem sabe a URL lê/escreve. Por isso o slug deve ser tratado
+  // como uma senha — nada de usar nomes óbvios se for sincronizar consultas reais.
+
+  function getSlugFromPath() {
+    const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    if (!path) return null;
+    const first = path.split('/')[0].toLowerCase();
+    if (first === 'api') return null;
+    return /^[a-z0-9-]{3,40}$/.test(first) ? first : null;
+  }
+
+  const currentSlug = getSlugFromPath();
+
+  const personalPageCta = document.getElementById('personalPageCta');
+  const slugBanner = document.getElementById('slugBanner');
+  const templatesCard = document.getElementById('templatesCard');
+
+  if (currentSlug) {
+    slugBanner.classList.add('visible');
+    document.getElementById('slugLabel').textContent = '/' + currentSlug;
+    templatesCard.classList.add('visible');
+  } else {
+    personalPageCta.classList.add('visible');
+  }
+
+  document.getElementById('slugCopyBtn')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin + '/' + currentSlug);
+      const btn = document.getElementById('slugCopyBtn');
+      btn.textContent = 'Copiado';
+      setTimeout(() => { btn.textContent = 'Copiar link'; }, 1500);
+    } catch (e) {}
+  });
+
+  function goToPersonalPage() {
+    const input = document.getElementById('personalSlugInput');
+    const errorEl = document.getElementById('personalSlugError');
+    const slug = input.value.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    if (slug.length < 3) {
+      errorEl.textContent = 'Use pelo menos 3 caracteres (letras, números ou hífen).';
+      return;
+    }
+    window.location.href = window.location.origin + '/' + slug;
+  }
+  document.getElementById('personalSlugGoBtn')?.addEventListener('click', goToPersonalPage);
+  document.getElementById('personalSlugInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') goToPersonalPage(); });
+
+  // ---------- Meus modelos (bloco persistente, separado da consulta) ----------
+
+  let templatesSaveTimer = null;
+
+  async function loadTemplates() {
+    try {
+      const res = await fetch('/api/templates?slug=' + encodeURIComponent(currentSlug));
+      const data = await res.json();
+      document.getElementById('templatesBox').value = data.text || '';
+    } catch (e) {
+      setBadge(document.getElementById('templatesBadge'), '', 'Não foi possível carregar');
+    }
+  }
+
+  function scheduleTemplatesSave() {
+    const badge = document.getElementById('templatesBadge');
+    setBadge(badge, '', 'Salvando...');
+    clearTimeout(templatesSaveTimer);
+    templatesSaveTimer = setTimeout(async () => {
+      try {
+        await fetch('/api/templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: currentSlug, text: document.getElementById('templatesBox').value })
+        });
+        setBadge(badge, 'done', 'Salvo');
+      } catch (e) {
+        setBadge(badge, '', 'Erro ao salvar');
+      }
+    }, 1200);
+  }
+
+  if (currentSlug) {
+    loadTemplates();
+    document.getElementById('templatesBox').addEventListener('input', scheduleTemplatesSave);
+  }
 
   function setState(state) { recorder.dataset.state = state; }
   function setStatus(text) { statusLine.textContent = text; }
@@ -626,6 +859,16 @@
     setStatus('Toque para gravar');
     setBadge(notepadBadge, 'done', 'Revisado');
     setBadge(panelBadge, 'done', 'Registro revisado — confira antes de usar');
+
+    if (currentSlug) {
+      // Best-effort: se este dispositivo está numa página pessoal, publica o
+      // resultado pro outro dispositivo (ex.: o computador) que esteja esperando.
+      fetch('/api/relay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: currentSlug, status: 'done', soap, soap_raw: soapRaw, transcript: notepad.value })
+      }).catch(() => {});
+    }
   }
 
   // ---------- Exportação ----------
@@ -712,6 +955,105 @@
     setStatus('Toque para gravar');
     setBadge(notepadBadge, '', 'Aguardando');
     setBadge(panelBadge, '', 'Aguardando gravação');
+  });
+  // ---------- Usar celular como microfone ----------
+  // Sem slug (página raiz): o QR só abre o site no celular, sem sincronização —
+  // o resultado fica no próprio celular.
+  // Com slug (página pessoal, /seu-nome): os dois aparelhos compartilham o
+  // mesmo endereço, então o computador acompanha o canal de relay daquela
+  // página e o resultado aparece sozinho aqui quando o celular terminar.
+
+  const phoneMicBtn = document.getElementById('phoneMicBtn');
+  const qrOverlay = document.getElementById('qrOverlay');
+  const qrCloseBtn = document.getElementById('qrCloseBtn');
+  const qrCodeBox = document.getElementById('qrCodeBox');
+  const qrLinkInput = document.getElementById('qrLinkInput');
+  const qrCopyLinkBtn = document.getElementById('qrCopyLinkBtn');
+  const qrInstructions = document.getElementById('qrInstructions');
+  const qrSyncStatus = document.getElementById('qrSyncStatus');
+  let qrRendered = false;
+  let relayPollTimer = null;
+
+  function siteUrl() {
+    return window.location.origin + window.location.pathname;
+  }
+
+  function openQrModal() {
+    const url = siteUrl();
+    qrLinkInput.value = url;
+
+    if (!qrRendered) {
+      qrCodeBox.innerHTML = '';
+      if (window.QRCode) {
+        try {
+          new QRCode(qrCodeBox, { text: url, width: 200, height: 200, colorDark: '#1C1C1E', colorLight: '#FFFFFF' });
+          qrRendered = true;
+        } catch (e) {
+          qrCodeBox.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;">Não foi possível gerar o código visual. Use o link abaixo.</p>';
+        }
+      } else {
+        qrCodeBox.innerHTML = '<p style="font-size:12px;color:var(--ink-soft);text-align:center;">Não foi possível carregar o gerador de QR code. Use o link abaixo.</p>';
+      }
+    }
+
+    if (currentSlug) {
+      qrInstructions.textContent = 'Aponte a câmera para o código. Como esta é sua página pessoal, o registro gravado no celular aparece sozinho aqui quando ele terminar — não precisa copiar nada.';
+      startRelayPolling();
+    } else {
+      qrInstructions.textContent = 'Aponte a câmera do celular para o código abaixo. Ele abre este mesmo site lá — toque no microfone normalmente para gravar.';
+      qrSyncStatus.textContent = '';
+    }
+
+    qrOverlay.classList.add('visible');
+  }
+
+  function closeQrModal() {
+    qrOverlay.classList.remove('visible');
+    stopRelayPolling();
+  }
+
+  function startRelayPolling() {
+    stopRelayPolling();
+    qrSyncStatus.textContent = 'Aguardando o celular terminar a gravação...';
+    relayPollTimer = setInterval(async () => {
+      try {
+        const res = await fetch('/api/relay?slug=' + encodeURIComponent(currentSlug));
+        const data = await res.json();
+        if (data.status === 'connected') {
+          qrSyncStatus.textContent = 'Celular conectado — aguardando a gravação terminar...';
+        } else if (data.status === 'done') {
+          qrSyncStatus.textContent = 'Registro recebido do celular.';
+          if (!notepadEditedByUser && data.transcript) {
+            const base = preRecordingText ? preRecordingText + '\n' : '';
+            setNotepadValue(base + data.transcript.trim());
+          }
+          finishWithResult(data.soap, data.soap_raw);
+          stopRelayPolling();
+          setTimeout(closeQrModal, 1200);
+        }
+      } catch (e) {
+        // tenta de novo no próximo ciclo
+      }
+    }, 4000);
+  }
+
+  function stopRelayPolling() {
+    clearInterval(relayPollTimer);
+    relayPollTimer = null;
+  }
+
+  phoneMicBtn.addEventListener('click', openQrModal);
+  qrCloseBtn.addEventListener('click', closeQrModal);
+  qrOverlay.addEventListener('click', (e) => { if (e.target === qrOverlay) closeQrModal(); });
+
+  qrCopyLinkBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(qrLinkInput.value);
+      qrCopyLinkBtn.textContent = 'Copiado';
+      setTimeout(() => { qrCopyLinkBtn.textContent = 'Copiar'; }, 1500);
+    } catch (e) {
+      qrLinkInput.select();
+    }
   });
 })();
 </script>
