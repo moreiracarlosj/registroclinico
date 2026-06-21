@@ -97,7 +97,7 @@ Funciona como o bloco de notas do invertexto.com: não tem login. Quem acessa `h
 
 Na página raiz (`/`), o botão "Usar celular como microfone" mostra um QR code que apenas abre o site no celular — sem sincronização. O resultado fica no celular; copie/exporte por lá.
 
-Numa página pessoal (`/seu-nome`), a sincronização é automática e ambiente — não existe "conectar". Qualquer aparelho aberto naquela página (computador, celular, outra aba) busca periodicamente por novidades em segundo plano, sozinho, assim que a página carrega. Quando qualquer um desses aparelhos termina uma gravação, o registro produzido é publicado nesse canal; os demais aparelhos pegam essa atualização sozinhos, em poucos segundos, e mostram um aviso rápido ("Registro atualizado a partir de outro aparelho"). Não precisa abrir o QR nem deixar nenhum modal aberto — o QR serve só para abrir a página no celular. Há um interruptor "Sincronizar automaticamente" ao lado do nome da página pessoal, ligado por padrão, caso você prefira desativar.
+Numa página pessoal (`/seu-nome`), a sincronização é automática, ambiente e permanente — não existe "conectar" nem interruptor para desligar. Qualquer aparelho aberto naquela página (computador, celular, outra aba) busca periodicamente por novidades em segundo plano, sozinho, assim que a página carrega. Quando qualquer um desses aparelhos termina uma gravação, o registro produzido é publicado nesse canal; os demais aparelhos pegam essa atualização sozinhos, em poucos segundos, e mostram um aviso rápido ("Registro atualizado a partir de outro aparelho"). Não precisa abrir o QR nem deixar nenhum modal aberto — o QR serve só para abrir a página no celular.
 
 ## Possíveis ajustes futuros
 
