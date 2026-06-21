@@ -299,6 +299,22 @@
   .qr-sync-status {
     padding: 0 18px 10px; font-size: 12px; color: var(--ready); text-align: center; min-height: 16px;
   }
+
+  .sync-banner {
+    display: none; align-items: center; gap: 8px; margin-top: 12px;
+    background: var(--ready-dim); border: 1px solid var(--ready); border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; color: var(--ready); max-width: 360px;
+  }
+  .sync-banner.visible { display: flex; }
+  .sync-banner .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--ready); flex-shrink: 0;
+    animation: pulse 1.3s ease-in-out infinite;
+  }
+  .sync-banner span:nth-child(2) { flex: 1; }
+  .sync-banner button {
+    background: none; border: none; color: var(--ready); text-decoration: underline;
+    font-family: 'Space Grotesk', sans-serif; font-size: 11.5px; cursor: pointer; padding: 2px;
+  }
 </style>
 </head>
 <body>
@@ -345,6 +361,12 @@
     </svg>
     Usar celular como microfone
   </button>
+
+  <div class="sync-banner" id="syncBanner">
+    <span class="dot"></span>
+    <span id="syncBannerText">Aguardando o celular...</span>
+    <button id="syncBannerCancelBtn">Cancelar</button>
+  </div>
 
   <p class="privacy-note">Evite citar nome completo, CPF ou outros identificadores diretos durante a gravação. Em navegadores compatíveis, o áudio não sai do seu dispositivo — só o texto reconhecido localmente é enviado para organizar o registro.</p>
 
@@ -497,6 +519,13 @@
     slugBanner.classList.add('visible');
     document.getElementById('slugLabel').textContent = '/' + currentSlug;
     templatesCard.classList.add('visible');
+    // Ping best-effort: ajuda o outro aparelho a saber que "alguém chegou" nesta
+    // página, e serve de teste rápido de que o KV está configurado.
+    fetch('/api/relay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: currentSlug, status: 'connected' })
+    }).catch(() => {});
   } else {
     personalPageCta.classList.add('visible');
   }
@@ -863,11 +892,20 @@
     if (currentSlug) {
       // Best-effort: se este dispositivo está numa página pessoal, publica o
       // resultado pro outro dispositivo (ex.: o computador) que esteja esperando.
+      // Mostra no badge se isso falhar, em vez de esconder o erro.
       fetch('/api/relay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slug: currentSlug, status: 'done', soap, soap_raw: soapRaw, transcript: notepad.value })
-      }).catch(() => {});
+      }).then((res) => {
+        if (res.ok) {
+          setBadge(panelBadge, 'done', 'Registro revisado — enviado ao computador');
+        } else {
+          setBadge(panelBadge, '', 'Registro revisado — falha ao enviar ao computador (copie manualmente)');
+        }
+      }).catch(() => {
+        setBadge(panelBadge, '', 'Registro revisado — sem conexão pra enviar ao computador (copie manualmente)');
+      });
     }
   }
 
@@ -971,8 +1009,15 @@
   const qrCopyLinkBtn = document.getElementById('qrCopyLinkBtn');
   const qrInstructions = document.getElementById('qrInstructions');
   const qrSyncStatus = document.getElementById('qrSyncStatus');
+  const syncBanner = document.getElementById('syncBanner');
+  const syncBannerText = document.getElementById('syncBannerText');
+  const syncBannerCancelBtn = document.getElementById('syncBannerCancelBtn');
   let qrRendered = false;
   let relayPollTimer = null;
+  let relayTimeoutTimer = null;
+
+  const RELAY_POLL_MS = 4000;
+  const RELAY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutos — bate com a expiração do relay no servidor
 
   function siteUrl() {
     return window.location.origin + window.location.pathname;
@@ -997,7 +1042,7 @@
     }
 
     if (currentSlug) {
-      qrInstructions.textContent = 'Aponte a câmera para o código. Como esta é sua página pessoal, o registro gravado no celular aparece sozinho aqui quando ele terminar — não precisa copiar nada.';
+      qrInstructions.textContent = 'Aponte a câmera para o código. Como esta é sua página pessoal, o registro gravado no celular aparece sozinho aqui quando ele terminar — pode fechar esta janela, a sincronização continua rodando.';
       startRelayPolling();
     } else {
       qrInstructions.textContent = 'Aponte a câmera do celular para o código abaixo. Ele abre este mesmo site lá — toque no microfone normalmente para gravar.';
@@ -1007,20 +1052,32 @@
     qrOverlay.classList.add('visible');
   }
 
-  function closeQrModal() {
-    qrOverlay.classList.remove('visible');
-    stopRelayPolling();
-  }
+  // Fechar o modal NÃO interrompe a sincronização — ela continua em segundo
+  // plano (banner abaixo do botão) até terminar, dar timeout, ou ser cancelada.
+  function closeQrModal() { qrOverlay.classList.remove('visible'); }
 
   function startRelayPolling() {
     stopRelayPolling();
     qrSyncStatus.textContent = 'Aguardando o celular terminar a gravação...';
+    setSyncBanner('Aguardando registro do celular em /' + currentSlug + '...');
+
+    relayTimeoutTimer = setTimeout(() => {
+      stopRelayPolling();
+      setSyncBanner('Tempo esgotado esperando o celular. Abra "Usar celular" de novo pra tentar outra vez.', true);
+    }, RELAY_TIMEOUT_MS);
+
     relayPollTimer = setInterval(async () => {
       try {
         const res = await fetch('/api/relay?slug=' + encodeURIComponent(currentSlug));
+        if (!res.ok) {
+          setSyncBanner('Não consegui checar o celular agora (erro do servidor). Tentando de novo...', true);
+          return;
+        }
         const data = await res.json();
         if (data.status === 'connected') {
-          qrSyncStatus.textContent = 'Celular conectado — aguardando a gravação terminar...';
+          const msg = 'Celular conectado — aguardando a gravação terminar...';
+          qrSyncStatus.textContent = msg;
+          setSyncBanner(msg);
         } else if (data.status === 'done') {
           qrSyncStatus.textContent = 'Registro recebido do celular.';
           if (!notepadEditedByUser && data.transcript) {
@@ -1029,18 +1086,36 @@
           }
           finishWithResult(data.soap, data.soap_raw);
           stopRelayPolling();
-          setTimeout(closeQrModal, 1200);
+          hideSyncBanner();
+          if (qrOverlay.classList.contains('visible')) setTimeout(closeQrModal, 1200);
         }
       } catch (e) {
-        // tenta de novo no próximo ciclo
+        // erro de rede pontual — tenta de novo no próximo ciclo, sem interromper
       }
-    }, 4000);
+    }, RELAY_POLL_MS);
   }
 
   function stopRelayPolling() {
     clearInterval(relayPollTimer);
+    clearTimeout(relayTimeoutTimer);
     relayPollTimer = null;
+    relayTimeoutTimer = null;
   }
+
+  function setSyncBanner(text, isWarning) {
+    syncBannerText.textContent = text;
+    syncBanner.classList.add('visible');
+    syncBanner.style.color = isWarning ? 'var(--record)' : 'var(--ready)';
+    syncBanner.style.borderColor = isWarning ? 'var(--record)' : 'var(--ready)';
+    syncBanner.style.background = isWarning ? 'var(--record-dim)' : 'var(--ready-dim)';
+  }
+
+  function hideSyncBanner() { syncBanner.classList.remove('visible'); }
+
+  syncBannerCancelBtn.addEventListener('click', () => {
+    stopRelayPolling();
+    hideSyncBanner();
+  });
 
   phoneMicBtn.addEventListener('click', openQrModal);
   qrCloseBtn.addEventListener('click', closeQrModal);
